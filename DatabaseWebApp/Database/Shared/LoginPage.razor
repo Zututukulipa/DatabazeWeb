@@ -1,0 +1,51 @@
+﻿@using Database.Entities
+@using Database.Services
+@using Databaze_API.Controllers
+@inject NavigationManager Navigation
+
+<div class="card">
+<div class="card-header">Login</div>
+<div class="card-body">
+<EditForm Model="@logon" OnValidSubmit="@handleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText type="login" id="login" placeholder="Username" @bind-Value="logon.login" /><br/>
+    <InputText type="password" id="password" placeholder="Password" @bind-Value="logon.password" />
+<div class="card-footer">
+    <button type="submit" class="btn btn-primary">Log In</button>
+</div>
+</EditForm>
+</div>
+@if (logError)
+{
+    <div class="card-footer">
+    <div class="alert alert-danger" role="alert">
+      <strong>Incorrect</strong> Username or Password.
+    </div>
+    </div>
+}
+</div>
+
+@code {
+    
+    [Inject]
+    UserService _service { get; set; }
+
+    private LoginInfoFields logon = new LoginInfoFields();
+    private bool logError = false;
+
+    private void handleValidSubmit()
+    {
+        _service.Controller.Login(logon.login,logon.password);
+        if (UserController.ActiveUser == null)
+            logError = true;
+        else
+        {
+            Navigation.NavigateTo("/", true);
+        }
+
+    }
+
+
+}

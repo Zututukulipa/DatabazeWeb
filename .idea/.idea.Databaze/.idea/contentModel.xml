@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="$APPLICATION_CONFIG_DIR$/consoles/db" t="IncludeRecursive" />
+    <e p="$APPLICATION_CONFIG_DIR$/extensions" t="IncludeRecursive" />
+    <e p="$USER_HOME$/.Rider2019.3/system/extResources" t="IncludeRecursive" />
+    <e p="$USER_HOME$/.Rider2019.3/system/resharper-host/local/Transient/ReSharperHost/v193/SolutionCaches/_Databaze.1924795925.00" t="ExcludeRecursive" />
+    <e p="$USER_HOME$/.nuget/packages/microsoft.net.test.sdk/16.2.0/build/netcoreapp1.0" t="Include">
+      <e p="Microsoft.NET.Test.Sdk.Program.cs" t="Include" />
+    </e>
+    <e p="$USER_HOME$/.nuget/packages/xunit.runner.visualstudio/2.4.0/build/netcoreapp1.0/xunit.runner.reporters.netcoreapp10.dll" t="Include" />
+    <e p="$USER_HOME$/.nuget/packages/xunit.runner.visualstudio/2.4.0/build/netcoreapp1.0/xunit.runner.utility.netcoreapp10.dll" t="Include" />
+    <e p="$USER_HOME$/.nuget/packages/xunit.runner.visualstudio/2.4.0/build/netcoreapp1.0/xunit.runner.visualstudio.dotnetcore.testadapter.dll" t="Include" />
+    <e p="$PROJECT_DIR$" t="IncludeFlat">
+      <e p="DatabaseAdapter" t="IncludeRecursive">
+        <e p="DatabaseAdapter.csproj" t="IncludeRecursive" />
+        <e p="OracleLib" t="Include">
+          <e p="Enums" t="Include">
+            <e p="Roles.cs" t="Include" />
+          </e>
+          <e p="Models" t="Include">
+            <e p="Classrooms.cs" t="Include" />
+            <e p="Comments.cs" t="Include" />
+            <e p="Courses.cs" t="Include" />
+            <e p="CoursesGroups.cs" t="Include" />
+            <e p="Files.cs" t="Include" />
+            <e p="Grades.cs" t="Include" />
+            <e p="Group.cs" t="Include" />
+            <e p="GroupMessages.cs" t="Include" />
+            <e p="PrivateMessages.cs" t="Include" />
+            <e p="Students.cs" t="Include" />
+            <e p="StudentsGroups.cs" t="Include" />
+            <e p="Teachers.cs" t="Include" />
+            <e p="Timetables.cs" t="Include" />
+            <e p="User.cs" t="Include" />
+            <e p="UsersStatus.cs" t="Include" />
+            <e p="WallPost.cs" t="Include" />
+          </e>
+          <e p="OracleDatabaseControls.cs" t="Include" />
+        </e>
+        <e p="SQLCripts" t="Include">
+          <e p="IDAS2" t="Include">
+            <e p="01_tables.sql" t="Include" />
+            <e p="02_sequences.sql" t="Include" />
+            <e p="03_triggers.sql" t="Include" />
+            <e p="04_views.sql" t="Include" />
+            <e p="05A_pkg_users.sql" t="Include" />
+            <e p="05B_pkg_students.sql" t="Include" />
+            <e p="05C_pkg_files.sql" t="Include" />
+            <e p="05D_pkg_tecahers.sql" t="Include" />
+            <e p="05E_pkg_classrooms.sql" t="Include" />
+            <e p="05F_pkg_courses.sql" t="Include" />
+            <e p="05G_pkg_grades.sql" t="Include" />
+            <e p="05H_pkg_users_status.sql" t="Include" />
+            <e p="05I_pkg_groups.sql" t="Include" />
+            <e p="05J_pkg_timetables.sql" t="Include" />
+            <e p="05K_pkg_pmsg.sql" t="Include" />
+            <e p="05L_pkg_gmsg.sql" t="Include" />
+            <e p="05M_pkg_comments.sql" t="Include" />
+            <e p="06_data.sql" t="Include" />
+            <e p="09_testing.sql" t="Include" />
+            <e p="INSTALL.sql" t="Include" />
+          </e>
+        </e>
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.0" t="Include">
+              <e p="DatabaseAdapter.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="DatabaseWebApp/Database" t="IncludeRecursive">
+        <e p="App.razor" t="Include" />
+        <e p="Data" t="Include">
+          <e p="DataGen.cs" t="Include" />
+        </e>
+        <e p="Database.csproj" t="IncludeRecursive" />
+        <e p="Entities" t="Include">
+          <e p="LoginInfoFields.cs" t="Include" />
+        </e>
+        <e p="NewFolder" t="Include" />
+        <e p="Pages" t="Include">
+          <e p="Error.razor" t="Include" />
+          <e p="Groups.razor" t="Include" />
+          <e p="Index.razor" t="Include" />
+          <e p="Login.razor" t="Include" />
+          <e p="Messages.razor" t="Include" />
+          <e p="_Host.cshtml" t="Include" />
+        </e>
+        <e p="Program.cs" t="Include" />
+        <e p="Properties" t="Include">
+          <e p="launchSettings.json" t="Include" />
+        </e>
+        <e p="Services" t="Include">
+          <e p="UserService.cs" t="Include" />
+        </e>
+        <e p="Shared" t="Include">
+          <e p="LoginPage.razor" t="Include" />
+          <e p="MainLayout.razor" t="Include" />
+          <e p="MessagesChatWindow.razor" t="Include" />
+          <e p="MessagesContactSidebar.razor" t="Include" />
+          <e p="NavMenu.razor" t="Include" />
+          <e p="PostComments.razor" t="Include" />
+          <e p="WallHeader.razor" t="Include" />
+          <e p="WallPosts.razor" t="Include" />
+        </e>
+        <e p="Startup.cs" t="Include" />
+        <e p="_Imports.razor" t="Include" />
+        <e p="appsettings.Development.json" t="Include" />
+        <e p="appsettings.json" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="mono_crash.mem.10901.1.blob" t="Include" />
+        <e p="mono_crash.mem.11958.1.blob" t="Include" />
+        <e p="mono_crash.mem.13407.1.blob" t="Include" />
+        <e p="mono_crash.mem.13582.1.blob" t="Include" />
+        <e p="mono_crash.mem.14328.1.blob" t="Include" />
+        <e p="mono_crash.mem.22499.1.blob" t="Include" />
+        <e p="mono_crash.mem.22847.1.blob" t="Include" />
+        <e p="mono_crash.mem.23143.1.blob" t="Include" />
+        <e p="mono_crash.mem.23823.1.blob" t="Include" />
+        <e p="mono_crash.mem.24161.1.blob" t="Include" />
+        <e p="mono_crash.mem.28375.1.blob" t="Include" />
+        <e p="mono_crash.mem.28576.1.blob" t="Include" />
+        <e p="mono_crash.mem.29834.1.blob" t="Include" />
+        <e p="mono_crash.mem.30479.1.blob" t="Include" />
+        <e p="mono_crash.mem.30814.1.blob" t="Include" />
+        <e p="mono_crash.mem.31656.1.blob" t="Include" />
+        <e p="mono_crash.mem.32458.1.blob" t="Include" />
+        <e p="mono_crash.mem.5078.1.blob" t="Include" />
+        <e p="mono_crash.mem.8253.1.blob" t="Include" />
+        <e p="mono_crash.mem.8532.1.blob" t="Include" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.0" t="Include">
+              <e p="Database.AssemblyInfo.cs" t="Include" />
+              <e p="Database.RazorAssemblyInfo.cs" t="Include" />
+              <e p="RazorDeclaration" t="Include">
+                <e p="App.razor.g.cs" t="Include" />
+                <e p="Pages" t="Include">
+                  <e p="Error.razor.g.cs" t="Include" />
+                  <e p="Groups.razor.g.cs" t="Include" />
+                  <e p="Index.razor.g.cs" t="Include" />
+                  <e p="Login.razor.g.cs" t="Include" />
+                  <e p="Messages.razor.g.cs" t="Include" />
+                </e>
+                <e p="Shared" t="Include">
+                  <e p="LoginPage.razor.g.cs" t="Include" />
+                  <e p="MainLayout.razor.g.cs" t="Include" />
+                  <e p="MessagesChatWindow.razor.g.cs" t="Include" />
+                  <e p="MessagesContactSidebar.razor.g.cs" t="Include" />
+                  <e p="NavMenu.razor.g.cs" t="Include" />
+                  <e p="PostComments.razor.g.cs" t="Include" />
+                  <e p="WallHeader.razor.g.cs" t="Include" />
+                  <e p="WallPosts.razor.g.cs" t="Include" />
+                </e>
+                <e p="_Imports.razor.g.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+        </e>
+        <e p="wwwroot" t="Include">
+          <e p="css" t="Include">
+            <e p="bootstrap" t="Include">
+              <e p="bootstrap.min.css" t="Include" />
+              <e p="bootstrap.min.css.map" t="Include" />
+            </e>
+            <e p="open-iconic" t="Include">
+              <e p="FONT-LICENSE" t="Include" />
+              <e p="ICON-LICENSE" t="Include" />
+              <e p="README.md" t="Include" />
+              <e p="font" t="Include">
+                <e p="css" t="Include">
+                  <e p="open-iconic-bootstrap.min.css" t="Include" />
+                </e>
+                <e p="fonts" t="Include">
+                  <e p="open-iconic.eot" t="Include" />
+                  <e p="open-iconic.otf" t="Include" />
+                  <e p="open-iconic.svg" t="Include" />
+                  <e p="open-iconic.ttf" t="Include" />
+                  <e p="open-iconic.woff" t="Include" />
+                </e>
+              </e>
+            </e>
+            <e p="site.css" t="Include" />
+          </e>
+          <e p="favicon.ico" t="Include" />
+          <e p="img" t="Include">
+            <e p="avatar_def.png" t="Include" />
+          </e>
+        </e>
+      </e>
+      <e p="Databaze.sln" t="IncludeFlat" />
+      <e p="Databaze_API" t="IncludeRecursive">
+        <e p="Controllers" t="Include">
+          <e p="UserController.cs" t="Include" />
+        </e>
+        <e p="Databaze_API.csproj" t="IncludeRecursive" />
+        <e p="Models" t="Include" />
+        <e p="Program.cs" t="Include" />
+        <e p="Properties" t="Include">
+          <e p="launchSettings.json" t="Include" />
+        </e>
+        <e p="SCHOOLD_GROUPS.sql" t="Include" />
+        <e p="Startup.cs" t="Include" />
+        <e p="appsettings.Development.json" t="Include" />
+        <e p="appsettings.json" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.0" t="Include">
+              <e p="Databaze_API.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="TestDatabaseAdapter" t="IncludeRecursive">
+        <e p="MessagingIntegrationTest.cs" t="Include" />
+        <e p="StudentIntegrationTest.cs" t="Include" />
+        <e p="TestDatabaseAdapter.csproj" t="IncludeRecursive" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.0" t="Include">
+              <e p="TestDatabaseAdapter.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="packages" t="ExcludeRecursive" />
+    </e>
+  </component>
+</project>

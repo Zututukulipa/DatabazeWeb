@@ -1,0 +1,54 @@
+﻿@using Database.Data
+@using DatabaseAdapter.OracleLib.Models
+<div class="col-sm-4 pre-scrollable" style="min-height: 870px">
+    <table class="table overflow-auto">
+        <thead>Conversations</thead>
+        <tbody>
+        @foreach (KeyValuePair<User, List<PrivateMessages>> entry in _conversations)
+        {
+            <tr class="list-group-item-action">
+                <td>
+                    @* TODO finish changing picture *@
+                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="User name" class="mr-3 rounded-circle align-self-center" width="45px" style="float:right">
+                </td>
+                <td>
+                    <ul class="list-group">
+                        <li style="list-style-type: none;">@entry.Key.FirstName @entry.Key.LastName</li>
+                        @if (entry.Value.Count > 15)
+                        {
+                            @entry.Value[0].Content.Substring(0, 15).Insert(14,"...")
+                        }
+                        else 
+                        {
+                            @entry.Value[0].Content
+                        }
+                        <li class="text-muted h7 mb-3" style="list-style-type: none;">@entry.Value[0].Created.ToString("MM/dd/yyyy h:mm tt")</li>
+                    </ul>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@code
+{
+    Dictionary<User, List<PrivateMessages>> _conversations = new Dictionary<User, List<PrivateMessages>>();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Random rnd = new Random();
+        List<User> us = DataGen.getDefaultUser(15);
+        List<PrivateMessages> messages = new List<PrivateMessages>();
+        for (int i = 0; i < 5; i++)
+        {
+            messages.Add(new PrivateMessages(us[rnd.Next(5)], "RANDOM TEXT"));
+        }
+        foreach (var user in us)
+        {
+            _conversations.Add(user, messages);
+        }
+    }
+
+}

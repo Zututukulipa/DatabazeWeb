@@ -1,0 +1,83 @@
+﻿@using Database.Data
+@using Database.Services
+@using DatabaseAdapter.OracleLib.WallPosts
+@using Databaze_API.Controllers
+@page "/"
+@if (UserController.ActiveUser != null)
+{
+    <WallHeader/>
+    <hr/>
+
+    <div class="container">
+        <div class="row">
+
+            <div class="col">
+                <EditForm Model="@addedPostString" OnValidSubmit="@AddTask">
+                    <DataAnnotationsValidator/>
+                    <ValidationSummary/>
+                    <InputTextArea id="name" placeholder="Write new post..." @bind-Value="addedPostString" style="width: 100%"/>
+                    <button type="submit" class="btn-block btn-primary">Add Post</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+    <br/>
+
+    <WallPosts Posts="Posts"
+               @ref="WallComponentControl"
+               RemovePostChanged="RemovePost"/>
+}
+else
+{
+    <Login/>
+}
+
+@code {
+    // This will hold a reference to the ToDoComponent
+    private WallPosts WallComponentControl;
+    
+    private void RemovePost(WallPost paramWallItem)
+    {
+    // Remove the Task from the collection
+        Posts.Remove(paramWallItem);
+    }
+
+    // Collection to hold all the Posts
+    private List<WallPost> Posts = new List<WallPost>();
+    // This method will run when the control is loade
+
+    // Property to hold the description of a new Task
+    // The textbox is bound to this property
+    private string addedPostString = "";
+
+    [Inject]
+    UserService activeUserService { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Posts = DataGen.getDefault(10);
+    }
+    
+    private void AddTask()
+    {
+        if (!string.IsNullOrWhiteSpace(addedPostString))
+        {
+    // Create a new Task
+    // using the current value of the
+    // addedPost property
+            WallPost addedPost = new WallPost(activeUserService.ActiveUser);
+            addedPost.MessageContent = addedPostString;
+            addedPost.Created = DateTime.Now;
+            addedPost.Owner = activeUserService.ActiveUser;
+    // Add the new Task to the collection
+    // by calling a method on the child component
+            WallComponentControl.AddNewPost(addedPost);
+    // Clear the addedPost value
+    // so the text box will now be empty
+            addedPostString = string.Empty;
+        }
+    }
+    
+
+}

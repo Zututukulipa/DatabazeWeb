@@ -1,0 +1,23 @@
+﻿@using DatabaseAdapter.OracleLib.Models
+
+@functions
+{
+    private User activeUser = Databaze_API.Controllers.UserController.ActiveUser;
+}
+
+<div class="media">
+    <img class="mr-3 rounded-circle" src="/img/avatar_def.png" alt="Generic placeholder image">
+    <div class="media-body">
+        <h5 class="mt-0">@activeUser.FirstName @activeUser.MiddleName @activeUser.LastName</h5>
+        <p class="p-1">@activeUser.Bio</p>
+        <h5 class="mt-0">Groups:</h5> <p class="p-0">
+            @foreach (var group in activeUser.Groups)
+            {
+                @group.ToString();
+            }
+        </p>
+           <button class="btn-primary btn-light">Edit</button>
+
+    </div>
+</div>
+

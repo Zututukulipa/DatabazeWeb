@@ -1,0 +1,5 @@
+
+# Datasource local storage ignored files
+/.idea.Databaze/.idea/dataSources/
+# Editor-based HTTP Client requests
+/.idea.Databaze/.idea/httpRequests/

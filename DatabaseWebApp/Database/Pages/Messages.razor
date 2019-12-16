@@ -1,0 +1,39 @@
+﻿@page "/Messages"
+@using Database.Data
+
+<div class="row">
+   <MessagesChatWindow/>
+    <MessagesContactSidebar/>
+</div>
+<div class="row">
+<div class="col-sm-8 pre-scrollable">
+    <div class="card">
+        <EditForm Model="@o" OnValidSubmit="@HandleValidSubmit">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+
+            <InputText id="name" @bind-Value="o" style="width: 970px;min-width: 200px;"/>
+
+            <button type="submit" class="btn btn-primary">Send</button>
+        </EditForm>
+    </div>
+</div>
+</div>
+
+@code{
+
+    List<PrivateMessages> _messages { get; set; }
+    string o = "";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _messages = DataGen.getDefaultMessages(10);
+    }
+
+    void HandleValidSubmit()
+    {
+        Console.WriteLine(o);
+    }
+
+}

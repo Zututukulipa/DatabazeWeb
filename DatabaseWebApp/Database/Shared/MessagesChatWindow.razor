@@ -1,0 +1,48 @@
+﻿@using Database.Pages
+@using Database.Services
+<div class="col-sm-8 pre-scrollable" style="min-height: 870px">
+    <div>
+        <h4>Chat</h4>
+        @foreach (var message in messageThread)
+        {
+           if (message.FromUser.Equals(activeUserService.ActiveUser))
+            {
+                <div class="shadow-none p-3 mb-5 bg-white rounded">
+                    <div class="text-muted h7 mb-3">You</div>
+                    <div class="text">
+                        @message.Content
+                    </div>
+                    <div class="text-muted text-right h7 mb-3">@message.Created.ToString("MM/dd/yyyy h:mm tt")</div>
+                </div>
+            }
+           else
+           {
+               <div class="shadow-none p-3 mb-5 bg-light rounded">
+                   <div class="text-muted h7 mb-3">@message.FromUser.ToString()</div>
+                   <div class="text">
+                          @message.Content
+                   </div>
+                   <div class="text-muted text-right h7 mb-3">@message.Created.ToString("MM/dd/yyyy h:mm tt")</div>
+               </div>
+           }
+        }
+    </div>
+</div>
+
+@code
+{
+
+    [Inject]
+    UserService activeUserService { get; set; }
+
+    List<PrivateMessages> messageThread = new List<PrivateMessages>();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    //TODO call messages from first in row
+    }
+
+
+
+}

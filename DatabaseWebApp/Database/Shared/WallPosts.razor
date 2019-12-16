@@ -1,0 +1,71 @@
+﻿@using DatabaseAdapter.OracleLib.WallPosts
+
+
+@foreach (var post in Posts)
+{
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="mr-2">
+                        <img class="rounded-circle" src="/img/avatar_def.png" alt="Generic placeholder image" width="45">
+                    </div>
+                    <div class="ml-2">
+                        <div class="h5 m-0">@post.Owner.FirstName @post.Owner.MiddleName @post.Owner.LastName</div>
+                        <div class="h7 text-muted">@post.Owner.Role</div>
+                        <div class="text-muted h7 mb-3">
+                            <i class="fa fa-clock-o"></i>@post.Created</div>
+                    </div>
+                    <button type="button" class="btn btn-link" @onclick="(() => RemovePost(post))">
+                        [Delete]
+                    </button>
+                </div>
+                <div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <p class="card-text">
+                @post.MessageContent
+            </p>
+        </div>
+    <PostComments Post="post"/>
+
+    </div>
+
+   
+}
+
+@code
+{
+
+    // Declare the ThemeColor CascadingParameter
+    // from the ancestor control as ThemeColorParameter 
+
+    // Collection to hold the Posts
+    // passed in by the parent component
+    [Parameter]
+    public List<WallPost> Posts { get; set; }
+
+    // RemoveTaskChanged is an EventCallback that will
+    // notify the parent component when an item is to be removed
+    // passing the item to be removed
+    [Parameter]
+    public EventCallback<WallPost> RemovePostChanged { get; set; }
+
+    private async Task RemovePost(WallPost paramPostItem)
+    {
+    // Notify parent component to
+    // Remove the Task from the collection
+        await RemovePostChanged.InvokeAsync(paramPostItem);
+    }
+
+    // This method will be called directly by the parent 
+    // component
+    public void AddNewPost(WallPost paramPostItem)
+    {
+    // Add the new Task to the collection
+        Posts.Insert(0,paramPostItem);
+    }
+
+}

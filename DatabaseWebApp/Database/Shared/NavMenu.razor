@@ -1,0 +1,62 @@
+﻿@using Databaze_API.Controllers
+<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">Schoold.</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            @if (UserController.ActiveUser == null)
+            {
+                <NavLink class="nav-link" href="Login">
+                    <span class="oi oi-pencil" aria-hidden="true"></span> Login
+                </NavLink>
+            }
+            else
+            {
+                <NavLink class="nav-link" href="Login" @onclick="logout">
+                    <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
+                </NavLink>
+            }
+            </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Profile">
+                <span class="oi oi-person" aria-hidden="true"></span> Profile
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Messages">
+                <span class="oi oi-envelope-closed" aria-hidden="true"></span> Messages
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Groups">
+                <span class="oi oi-people" aria-hidden="true"></span> Groups
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Courses">
+                <span class="oi oi-book" aria-hidden="true"></span> Courses
+            </NavLink>
+        </li>
+    </ul>
+</div>
+
+@code {
+    bool collapseNavMenu = true;
+
+    string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    void logout()
+    {
+        UserController.ActiveUser = null;
+    }
+}

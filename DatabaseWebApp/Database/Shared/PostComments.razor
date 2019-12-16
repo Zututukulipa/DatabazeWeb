@@ -1,0 +1,90 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using DatabaseAdapter.OracleLib.Models
+@using DatabaseAdapter.OracleLib.WallPosts
+
+
+
+@foreach (var response in Post.Comments)
+{
+    <div class="card-header w-75">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="mr-2">
+                    <img class="rounded-circle" src="/img/avatar_def.png" alt="Generic placeholder image" width="45">
+                </div>
+                <div class="ml-2">
+                    <div class="h5 m-0">@response.ContentOwner.FirstName @response.ContentOwner.MiddleName @response.ContentOwner.LastName</div>
+                    <div class="h7 text-muted">@response.ContentOwner.Role</div>
+                    <div class="text-muted h7 mb-3">
+                        <i class="fa fa-clock-o"></i>@response.Created</div>
+                </div>
+                @if (response.ContentOwner.UserId == activeUser.UserId)
+                {
+                    <button type="button" class="btn btn-link" @onclick="(() => RemoveComment(response))">
+                        [Delete]
+                    </button>
+                }
+            </div>
+            <div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body w-75">
+        <p class="card-text">
+            @response.Content
+        </p>
+    </div>
+}
+
+<div class="card-footer">
+    <div class="row">
+
+        <div class="col">
+            <EditForm Model="@newComment" OnValidSubmit="@AddNewComment">
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
+                <InputTextArea id="name" placeholder="Write Your Comment..." @bind-Value="newComment" style="width: 100%"/>
+                <button type="submit" class="btn-block btn-secondary w-50 align-content-center">Add Comment</button>
+            </EditForm>
+        </div>
+    </div>
+</div>
+<br/>
+
+@code
+{
+    private User activeUser = Databaze_API.Controllers.UserController.ActiveUser;
+
+    [Parameter]
+    public WallPost Post { get; set; }
+
+    [Parameter]
+    public EventCallback<WallPost> RemovePostChanged { get; set; }
+
+    [Required] private string newComment = "";
+
+    private async Task RemoveComment(Comments paramPostItem)
+    {
+    // Notify parent component to
+    // Remove the Task from the collection
+        Post.Comments.Remove(paramPostItem);
+    }
+
+    // This method will be called directly by the parent 
+    // component
+    public void AddNewComment()
+    {
+    // Add the new Task to the collection
+        Comments addedComment = new Comments();
+        addedComment.Content = newComment;
+        addedComment.ContentOwner = activeUser;
+        addedComment.Created = DateTime.Now;
+
+        Post.Comments.Add(addedComment);
+        newComment = String.Empty;
+        
+    }
+
+
+}
