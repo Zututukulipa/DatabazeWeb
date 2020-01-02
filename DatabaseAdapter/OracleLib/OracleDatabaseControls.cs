@@ -449,6 +449,7 @@ namespace DatabaseAdapter.OracleLib
                 // Execute the command
                 command.ExecuteNonQuery();
                 // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
             }
         }
 
@@ -467,13 +468,86 @@ namespace DatabaseAdapter.OracleLib
                 command.CommandType = CommandType.StoredProcedure;
 
                 // FUNCTION GET_BY_ID(p_id T_ID) RETURN SYS_REFCURSOR AS
-                OracleParameter p2 = command.Parameters.Add(":p_group_id", OracleDbType.Int32,
+                OracleParameter p0 = command.Parameters.Add(":p_group_id", OracleDbType.Int32,
                     course.CourseId.ToString(), ParameterDirection.Input);
 
                 connection.Open();
                 // Execute the command
                 command.ExecuteNonQuery();
                 // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
+
+        public void UpdateCourseDescription(Courses course, string newUpdatedDescription)
+        {
+            //PROCEDURE UPDATE_DESCRIPTION(p_course_id T_ID, p_description T_DESCRIPTION)
+            var commandText = "PKG_GROUP.UPDATE_DESCRIPTION";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // FUNCTION GET_BY_ID(p_id T_ID) RETURN SYS_REFCURSOR AS
+                OracleParameter p0 = command.Parameters.Add(":p_course_id", OracleDbType.Int32,
+                    course.CourseId.ToString(), ParameterDirection.Input);
+                OracleParameter p1 = command.Parameters.Add(":p_description", OracleDbType.NVarchar2,
+                    newUpdatedDescription, ParameterDirection.Input);
+
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
+
+        public void UpdateCourseFullName(Courses course, string newUpdatedFullname)
+        {
+            // PROCEDURE UPDATE_FULL_NAME(p_course_id T_ID, p_full_name T_FULL_NAME) 
+            var commandText = "PKG_GROUP.UPDATE_FULL_NAME";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // FUNCTION GET_BY_ID(p_id T_ID) RETURN SYS_REFCURSOR AS
+                OracleParameter p0 = command.Parameters.Add(":p_course_id", OracleDbType.Int32,
+                    course.CourseId.ToString(), ParameterDirection.Input);
+                OracleParameter p1 = command.Parameters.Add(":p_full_name", OracleDbType.NVarchar2,
+                    newUpdatedFullname, ParameterDirection.Input);
+
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
+
+        public void UpdateCourseShortcut(Courses course, string newUpdatedShortcut)
+        {
+            //PROCEDURE UPDATE_SHORT_NAME(p_course_id T_ID, p_short_name T_SHORT_NAME)
+            var commandText = "PKG_GROUP.UPDATE_FULL_NAME";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // FUNCTION GET_BY_ID(p_id T_ID) RETURN SYS_REFCURSOR AS
+                OracleParameter p0 = command.Parameters.Add(":p_course_id", OracleDbType.Int32,
+                    course.CourseId.ToString(), ParameterDirection.Input);
+                OracleParameter p1 = command.Parameters.Add(":p_short_name", OracleDbType.NVarchar2,
+                    newUpdatedShortcut.ToUpper(), ParameterDirection.Input);
+
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
             }
         }
     }
