@@ -1,11 +1,12 @@
-using System;
-
-public class CoursesGroups
+namespace DatabaseAdapter.OracleLib.Models
 {
+    public class CoursesGroups
+    {
 
-    public string GroupId { get; set; }
+        public string GroupId { get; set; }
 
 
-    public string CourseId { get; set; }
+        public string CourseId { get; set; }
 
+    }
 }

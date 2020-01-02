@@ -111,26 +111,6 @@
         <e p="appsettings.Development.json" t="Include" />
         <e p="appsettings.json" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
-        <e p="mono_crash.mem.10901.1.blob" t="Include" />
-        <e p="mono_crash.mem.11958.1.blob" t="Include" />
-        <e p="mono_crash.mem.13407.1.blob" t="Include" />
-        <e p="mono_crash.mem.13582.1.blob" t="Include" />
-        <e p="mono_crash.mem.14328.1.blob" t="Include" />
-        <e p="mono_crash.mem.22499.1.blob" t="Include" />
-        <e p="mono_crash.mem.22847.1.blob" t="Include" />
-        <e p="mono_crash.mem.23143.1.blob" t="Include" />
-        <e p="mono_crash.mem.23823.1.blob" t="Include" />
-        <e p="mono_crash.mem.24161.1.blob" t="Include" />
-        <e p="mono_crash.mem.28375.1.blob" t="Include" />
-        <e p="mono_crash.mem.28576.1.blob" t="Include" />
-        <e p="mono_crash.mem.29834.1.blob" t="Include" />
-        <e p="mono_crash.mem.30479.1.blob" t="Include" />
-        <e p="mono_crash.mem.30814.1.blob" t="Include" />
-        <e p="mono_crash.mem.31656.1.blob" t="Include" />
-        <e p="mono_crash.mem.32458.1.blob" t="Include" />
-        <e p="mono_crash.mem.5078.1.blob" t="Include" />
-        <e p="mono_crash.mem.8253.1.blob" t="Include" />
-        <e p="mono_crash.mem.8532.1.blob" t="Include" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
@@ -216,9 +196,11 @@
         </e>
       </e>
       <e p="TestDatabaseAdapter" t="IncludeRecursive">
+        <e p="DataGen.cs" t="Include" />
+        <e p="GroupsIntegrationTest.cs" t="Include" />
         <e p="MessagingIntegrationTest.cs" t="Include" />
-        <e p="StudentIntegrationTest.cs" t="Include" />
         <e p="TestDatabaseAdapter.csproj" t="IncludeRecursive" />
+        <e p="UserIntegrationTest.cs" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
@@ -227,6 +209,7 @@
             </e>
           </e>
         </e>
+        <e p="searchSimplePredmety-2019-12-16-16-05.csv" t="Include" />
       </e>
       <e p="packages" t="ExcludeRecursive" />
     </e>

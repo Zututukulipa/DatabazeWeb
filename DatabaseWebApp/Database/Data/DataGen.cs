@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Database.Pages;
 using Database.Services;
 using DatabaseAdapter.OracleLib.Models;
-using DatabaseAdapter.OracleLib.WallPosts;
 
 namespace Database.Data
 {

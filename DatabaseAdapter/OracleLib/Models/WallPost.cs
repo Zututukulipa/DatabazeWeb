@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using DatabaseAdapter.OracleLib.Models;
 
-namespace DatabaseAdapter.OracleLib.WallPosts
+namespace DatabaseAdapter.OracleLib.Models
 {
     public class WallPost
     {

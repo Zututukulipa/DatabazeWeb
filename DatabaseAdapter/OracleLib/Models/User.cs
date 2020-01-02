@@ -36,6 +36,8 @@ namespace DatabaseAdapter.OracleLib.Models
         public List<Group> Groups { get; set; }
         public string Bio { get; set; }
 
+        public Dictionary<User, List<PrivateMessages>> UserConversations { get; set; }
+
         public User()
         {
             Username = "MockupBro";
@@ -47,6 +49,7 @@ namespace DatabaseAdapter.OracleLib.Models
             StatusId = 1;
             Bio =
                 "Generic automatically generated bio, trying to emulate a little string that might be possible to observe in responsive mode :]";
+            UserConversations = new Dictionary<User, List<PrivateMessages>>();
 
         }
 
@@ -61,6 +64,8 @@ namespace DatabaseAdapter.OracleLib.Models
             Groups = new List<Group>();
             StatusId = 1;
             Bio = bio;
+            UserConversations = new Dictionary<User, List<PrivateMessages>>();
+
         }
 
         public bool Equals(User other)

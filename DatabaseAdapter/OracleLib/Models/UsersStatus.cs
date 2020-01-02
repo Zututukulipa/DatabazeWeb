@@ -1,11 +1,12 @@
-using System;
-
-public class UsersStatus
+namespace DatabaseAdapter.OracleLib.Models
 {
+    public class UsersStatus
+    {
 
-    public string StatusId { get; set; }
+        public string StatusId { get; set; }
 
 
-    public string Name { get; set; }
+        public string Name { get; set; }
 
+    }
 }

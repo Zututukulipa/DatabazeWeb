@@ -30,7 +30,7 @@ namespace TestDatabaseAdapter
 
         private readonly int ARRAYLENGHT = 10;
         [Fact]
-        public void StudentIntegration()
+        public void UserIntegration()
         {
             //1	vrana	Daniel	Marek	Vrána	vrana@upce.cz
             User user;
@@ -56,6 +56,15 @@ namespace TestDatabaseAdapter
                         Assert.True(false);
                 }
             }
+
+            int[] yyyy = new[] {1, 2, 3, 4, 5};
+            for (int i = 30; i < 100; i++)
+            {
+                //WHAT AM I DOING WITH My LIFE?!
+                _controls.AssignAsStudent(i,yyyy[random.Next(5)]);
+            } 
+            
+            
             
         }
 
