@@ -592,5 +592,29 @@ namespace DatabaseAdapter.OracleLib
                 connection.Close();
             }
         }
+
+        public void UpdateClassroomCapacity(Classrooms classroom, int updatedCapacity)
+        {
+            //UPDATE_CAPACITY(p_classroom_id T_ID, p_capacity T_CAPACITY) 
+            var commandText = "PKG_CLASSROOM.UPDATE_CAPACITY";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // FUNCTION GET_BY_ID(p_id T_ID) RETURN SYS_REFCURSOR AS
+                OracleParameter p0 = command.Parameters.Add(":p_classroom_id", OracleDbType.Int32,
+                    classroom.ClassroomId.ToString(), ParameterDirection.Input);
+                OracleParameter p1 = command.Parameters.Add(":p_capacity", OracleDbType.Int32,
+                    updatedCapacity.ToString(), ParameterDirection.Input);
+
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
     }
 }

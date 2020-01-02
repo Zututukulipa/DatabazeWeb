@@ -15,6 +15,7 @@ namespace TestDatabaseAdapter
         {
             Classrooms classroom = new Classrooms("I808", 15);
             classroom.ClassroomId = Controls.InsertClassroom(classroom);
+            Controls.UpdateClassroomCapacity(classroom);
             Controls.RemoveClassroom(classroom);
         }
     }
