@@ -616,5 +616,29 @@ namespace DatabaseAdapter.OracleLib
                 connection.Close();
             }
         }
+
+        public void UpdateClassroomName(Classrooms classroom, string newClassroomName)
+        {
+            //UPDATE_NAME(p_classroom_id T_ID, p_name T_NAME)
+            var commandText = "PKG_CLASSROOM.UPDATE_NAME";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // FUNCTION GET_BY_ID(p_id T_ID) RETURN SYS_REFCURSOR AS
+                OracleParameter p0 = command.Parameters.Add(":p_classroom_id", OracleDbType.Int32,
+                    classroom.ClassroomId.ToString(), ParameterDirection.Input);
+                OracleParameter p1 = command.Parameters.Add(":p_name", OracleDbType.NVarchar2,
+                    newClassroomName, ParameterDirection.Input);
+
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
     }
 }
