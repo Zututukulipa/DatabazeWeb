@@ -196,6 +196,7 @@
         </e>
       </e>
       <e p="TestDatabaseAdapter" t="IncludeRecursive">
+        <e p="ClassroomTest.cs" t="Include" />
         <e p="DataGen.cs" t="Include" />
         <e p="GroupsIntegrationTest.cs" t="Include" />
         <e p="MessagingIntegrationTest.cs" t="Include" />

@@ -3,13 +3,22 @@ namespace DatabaseAdapter.OracleLib.Models
     public class Classrooms
     {
 
-        public string ClassroomId { get; set; }
+        public int ClassroomId { get; set; }
 
 
         public string Name { get; set; }
 
 
-        public string Capacity { get; set; }
+        public int Capacity { get; set; }
 
+        public Classrooms()
+        {
+        }
+
+        public Classrooms(string name, int capacity)
+        {
+            Name = name;
+            Capacity = capacity;
+        }
     }
 }

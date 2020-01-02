@@ -16,17 +16,32 @@ namespace DatabaseAdapter.OracleLib
             ConnectionString = databaseConnectionString;
         }
 
-        public void InsertClassroom(string roomName, string roomCapacity)
+        public int InsertClassroom(Classrooms classroom)
         {
-            var commandText = "INSERT INTO CLASSROOMS( NAME, CAPACITY) VALUES (:room_name,:room_capacity)";
+            //FUNCTION NEW(p_name T_NAME, p_capacity T_CAPACITY) RETURN T_ID
+            var commandText = "PKG_CLASSROOM.NEW";
             using (OracleConnection connection = new OracleConnection(ConnectionString))
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
-                command.Parameters.Add(":room_name", OracleDbType.NVarchar2, roomName, ParameterDirection.Input);
-                command.Parameters.Add(":room_capacity", OracleDbType.Int32, roomCapacity, ParameterDirection.Input);
-                command.Connection.Open();
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter rval =
+                    command.Parameters.Add("T_ID", OracleDbType.Int32);
+                rval.Direction = ParameterDirection.ReturnValue;
+                OracleParameter p0 = command.Parameters.Add(":T_NAME", OracleDbType.NVarchar2,
+                    classroom.Name, ParameterDirection.Input);
+                OracleParameter p1 =
+                    command.Parameters.Add(":p_capacity", OracleDbType.Int32, classroom.ClassroomId.ToString(),
+                        ParameterDirection.Input);
+                connection.Open();
+                // Execute the command
                 command.ExecuteNonQuery();
-                command.Connection.Close();
+
+                // Construct an OracleDataReader from the REF CURSOR
+
+                int returnVal = int.Parse(rval.Value.ToString());
+                connection.Close();
+                return returnVal;
             }
         }
 
