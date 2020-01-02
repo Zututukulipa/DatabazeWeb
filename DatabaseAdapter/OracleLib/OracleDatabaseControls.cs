@@ -542,6 +542,12 @@ namespace DatabaseAdapter.OracleLib
             }
         }
 
+        /// <summary>
+        /// Updates Shortcut of passed course.
+        /// Make sure shortcut has length of 5.
+        /// </summary>
+        /// <param name="course"></param>
+        /// <param name="newUpdatedShortcut"></param>
         public void UpdateCourseShortcut(Courses course, string newUpdatedShortcut)
         {
             //PROCEDURE UPDATE_SHORT_NAME(p_course_id T_ID, p_short_name T_SHORT_NAME)
@@ -557,6 +563,27 @@ namespace DatabaseAdapter.OracleLib
                 OracleParameter p1 = command.Parameters.Add(":p_short_name", OracleDbType.NVarchar2,
                     newUpdatedShortcut.ToUpper(), ParameterDirection.Input);
 
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
+
+        public void RemoveClassroom(Classrooms classroom)
+        {
+            // REMOVE(p_classroom_id T_ID)
+            var commandText = "PKG_CLASSROOM.REMOVE";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // FUNCTION GET_BY_ID(p_id T_ID) RETURN SYS_REFCURSOR AS
+                OracleParameter p0 = command.Parameters.Add(":p_classroom_id", OracleDbType.Int32,
+                    classroom.ClassroomId.ToString(), ParameterDirection.Input);
 
                 connection.Open();
                 // Execute the command
