@@ -645,7 +645,7 @@ namespace DatabaseAdapter.OracleLib
             //GET_BY_ID(p_classroom_id T_ID) RETURN SYS_REFCURSOR
             var commandText = "PKG_CLASSROOM.GET_BY_ID";
             Classrooms classroom = new Classrooms();
-            
+
             using (OracleConnection connection = new OracleConnection(ConnectionString))
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
@@ -664,6 +664,7 @@ namespace DatabaseAdapter.OracleLib
                     classroom.Name = reader.GetString("NAME");
                     classroom.Capacity = reader.GetInt32("CAPACITY");
                 }
+
                 // Construct an OracleDataReader from the REF CURSOR
                 connection.Close();
             }
@@ -673,12 +674,11 @@ namespace DatabaseAdapter.OracleLib
 
         public List<Classrooms> GetClassroomByCapacity(int roomCapacity)
         {
-            
             //GET_BY_CAPACITY(p_capacity T_CAPACITY) RETURN SYS_REFCURSOR
             var commandText = "PKG_CLASSROOM.GET_BY_CAPACITY";
             List<Classrooms> classrooms = new List<Classrooms>();
-            
-            
+
+
             using (OracleConnection connection = new OracleConnection(ConnectionString))
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
@@ -698,7 +698,65 @@ namespace DatabaseAdapter.OracleLib
                     classroom.Capacity = reader.GetInt32("CAPACITY");
                     classrooms.Add(classroom);
                 }
-                // Construct an OracleDataReader from the REF CURSOR
+
+                connection.Close();
+            }
+
+            return classrooms;
+        }
+
+        public List<Classrooms> GetClassroomAll()
+        {
+            //GET_ALL RETURN SYS_REFCURSOR
+            var commandText = "PKG_CLASSROOM.GET_BY_CAPACITY";
+            List<Classrooms> classrooms = new List<Classrooms>();
+
+
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                connection.Open();
+                // Execute the command
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Classrooms classroom = new Classrooms();
+                    classroom.ClassroomId = reader.GetInt32("CLASSROOM_ID");
+                    classroom.Name = reader.GetString("NAME");
+                    classroom.Capacity = reader.GetInt32("CAPACITY");
+                    classrooms.Add(classroom);
+                }
+
+                connection.Close();
+            }
+
+            return classrooms;
+        }
+
+        public List<Courses> getCourseAll()
+        {
+        
+            //FUNCTION GET_ALL RETURN SYS_REFCURSOR
+            var commandText = "PKG_COURSE.GET_ALL";
+            List<Courses> classrooms = new List<Courses>();
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                connection.Open();
+                // Execute the command
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Courses course = new Courses();
+                    course.CourseId = reader.GetInt32("COURSE_ID");
+                    course.FullName = reader.GetString("FULL_NAME");
+                    course.ShortName = reader.GetString("SHORT_NAME");
+                    course.Description = reader.GetString("DESCRIPTION");
+                    classrooms.Add(course);
+                }
+
                 connection.Close();
             }
 

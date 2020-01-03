@@ -15,11 +15,17 @@ namespace TestDatabaseAdapter
         {
             Classrooms classroom = new Classrooms("I808", 15);
             classroom.ClassroomId = Controls.InsertClassroom(classroom);
+            var testReturn = Controls.GetClassroomById(classroom.ClassroomId);
+            Assert.False(classroom.ClassroomId != testReturn.ClassroomId ||
+                         classroom.Capacity != testReturn.Capacity ||
+                         classroom.Name != testReturn.Name);
+            
             Controls.UpdateClassroomCapacity(classroom, 20);
             Controls.UpdateClassroomName(classroom, "newClassroomName");
             Controls.RemoveClassroom(classroom);
             var classroomViaId = Controls.GetClassroomById(1);
             List<Classrooms> rooms = Controls.GetClassroomByCapacity(20);
+            List<Classrooms> allrooms = Controls.GetClassroomAll();
         }
     }
 }
