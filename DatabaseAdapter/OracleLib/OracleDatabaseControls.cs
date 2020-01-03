@@ -734,7 +734,7 @@ namespace DatabaseAdapter.OracleLib
             return classrooms;
         }
 
-        public List<Courses> getCourseAll()
+        public List<Courses> GetCourseAll()
         {
         
             //FUNCTION GET_ALL RETURN SYS_REFCURSOR
@@ -761,6 +761,38 @@ namespace DatabaseAdapter.OracleLib
             }
 
             return classrooms;
+        }
+
+        public Courses GetCourseById(int courseId)
+        {
+            //FUNCTION GET_BY_ID(p_course_id T_ID) RETURN SYS_REFCURSOR 
+            var commandText = "PKG_COURSES.GET_BY_ID";
+            Courses course = new Courses();
+
+
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p0 = command.Parameters.Add(":p_course_id", OracleDbType.Int32,
+                    courseId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    course.CourseId = reader.GetInt32("COURSE_ID");
+                    course.FullName = reader.GetString("FULL_NAME");
+                    course.ShortName = reader.GetString("SHORT_NAME");
+                    course.Description = reader.GetString("DESCRIPTION");
+                }
+
+                connection.Close();
+            }
+
+            return course;
         }
     }
 }
