@@ -18,6 +18,8 @@ namespace TestDatabaseAdapter
             Controls.UpdateClassroomCapacity(classroom, 20);
             Controls.UpdateClassroomName(classroom, "newClassroomName");
             Controls.RemoveClassroom(classroom);
+            var classroomViaId = Controls.GetClassroomById(1);
+            List<Classrooms> rooms = Controls.GetClassroomByCapacity(20);
         }
     }
 }
