@@ -18,7 +18,9 @@ namespace TestDatabaseAdapter
         [Fact]
         public void GetAll()
         {
+            User us = _controls.GetUserById(300);
             List<PrivateMessages> messages = _controls.GetMessageAll();
+            List<PrivateMessages> messagesByUser = _controls.GetMessageByUser(us);
             PrivateMessages messageById = _controls.GetMessageById(140);
             
         }

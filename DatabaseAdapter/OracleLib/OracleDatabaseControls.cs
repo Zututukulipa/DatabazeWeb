@@ -736,7 +736,6 @@ namespace DatabaseAdapter.OracleLib
 
         public List<Courses> GetCourseAll()
         {
-        
             //FUNCTION GET_ALL RETURN SYS_REFCURSOR
             var commandText = "PKG_COURSE.GET_ALL";
             List<Courses> classrooms = new List<Courses>();
@@ -851,6 +850,37 @@ namespace DatabaseAdapter.OracleLib
             }
 
             return pMessage;
+        }
+
+        public List<PrivateMessages> GetMessageByUser(User us)
+        {
+            //FUNCTION GET_BY_USER(p_user PKG_USER.T_ID) RETURN SYS_REFCURSOR AS
+            var commandText = "PKG_PMSG.GET_BY_USER";
+            List<PrivateMessages> pMessages = new List<PrivateMessages>();
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p0 = command.Parameters.Add(":p_user", OracleDbType.Int32,
+                    us.UserId.ToString(), ParameterDirection.Input);
+                
+                connection.Open();
+                // Execute the command
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    PrivateMessages pMessage = new PrivateMessages();
+                    pMessage.PmsgId = reader.GetInt32("MESSAGE_ID");
+                    pMessage.FromUser = GetUserById(reader.GetInt32("FROM_USER_ID"));
+                    pMessage.ToUser = GetUserById(reader.GetInt32("TO_USER_ID"));
+                    pMessage.Content = reader.GetString("MESSAGE_CONTENT");
+                    pMessage.Created = reader.GetDateTime("MESSAGE_CREATED");
+                    pMessages.Add(pMessage);
+                }
+                connection.Close();
+            }
+            return pMessages;
         }
     }
 }
