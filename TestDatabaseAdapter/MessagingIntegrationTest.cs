@@ -16,6 +16,14 @@ namespace TestDatabaseAdapter
             new OracleDatabaseControls("DATA SOURCE=localhost/XE;USER ID=schoold; password=heslo;");
 
         [Fact]
+        public void GetAll()
+        {
+            List<PrivateMessages> messages = _controls.GetMessageAll();
+            PrivateMessages messageById = _controls.GetMessageById(140);
+            
+        }
+
+        [Fact]
         public void MessagingIntegration()
         {
             var users = DataGen.getDefaultUser(50);

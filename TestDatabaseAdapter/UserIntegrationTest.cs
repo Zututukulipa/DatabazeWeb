@@ -42,7 +42,7 @@ namespace TestDatabaseAdapter
                 user = (i % 2 == 0) ?  GenerateRandomFemaleUser(random, email, i) : GenerateRandomMaleUser(random, email, i);
                 user.Password = "password";
                 user.UserId = _controls.InsertUser(user);
-                User generatedUser = _controls.SelectUser(user.UserId);
+                User generatedUser = _controls.GetUserById(user.UserId);
                 if (!generatedUser.Equals(user))
                 {
                     Assert.True(false);
@@ -51,7 +51,7 @@ namespace TestDatabaseAdapter
                 if (i % 2 == 0)
                 {
                     _controls.DeleteUser(user);
-                    User userDeleted = _controls.SelectUser(user.UserId);
+                    User userDeleted = _controls.GetUserById(user.UserId);
                     if (userDeleted.StatusId != 0)
                         Assert.True(false);
                 }
