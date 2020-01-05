@@ -5,13 +5,13 @@ namespace DatabaseAdapter.OracleLib.Models
     public class Timetables
     {
 
-        public string TimetableId { get; set; }
+        public int TimetableId { get; set; }
 
 
-        public string GroupId { get; set; }
+        public int GroupId { get; set; }
 
 
-        public string ClassroomId { get; set; }
+        public int ClassroomId { get; set; }
 
 
         public DateTime Begin { get; set; }

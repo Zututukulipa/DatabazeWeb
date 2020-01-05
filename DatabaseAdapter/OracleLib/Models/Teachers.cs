@@ -1,12 +1,8 @@
 namespace DatabaseAdapter.OracleLib.Models
 {
-    public class Teachers
+    public class Teachers : User
     {
-
-        public string TeacherId { get; set; }
-
-
-        public string UserId { get; set; }
+        public int TeacherId { get; set; }
 
     }
 }

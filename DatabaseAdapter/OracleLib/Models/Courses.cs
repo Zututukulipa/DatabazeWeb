@@ -17,7 +17,7 @@ namespace DatabaseAdapter.OracleLib.Models
         public Courses(string fullName, string shortName, string description)
         {
             FullName = fullName;
-            ShortName = shortName;
+            ShortName = shortName.ToUpper();
             Description = description;
         }
 

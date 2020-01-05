@@ -31,7 +31,7 @@ namespace DatabaseAdapter.OracleLib.Models
         public int StatusId { get; set; }
 
 
-        public string Admin { get; set; }
+        public bool Admin { get; set; }
 
         public List<Group> Groups { get; set; }
         public string Bio { get; set; }

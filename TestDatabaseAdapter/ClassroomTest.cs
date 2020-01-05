@@ -7,7 +7,6 @@ namespace TestDatabaseAdapter
 {
     public class ClassroomTest
     {
-        private List<Classrooms> Classrooms1 { get; } = new List<Classrooms>();
         private DatabaseAdapter.OracleLib.OracleDatabaseControls Controls { get; } = new OracleDatabaseControls("DATA SOURCE=localhost/XE;USER ID=schoold; password=heslo;");
 
         [Fact]
