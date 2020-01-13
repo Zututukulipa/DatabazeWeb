@@ -200,38 +200,52 @@ namespace DatabaseAdapter.OracleLib
             }
         }
 
-        public void InsertGroup(string leaderId, string courseId, string courseName, string maxCapacity)
+        public int InsertGroup(Group group)
         {
-            var commandText =
-                "INSERT INTO GROUPS(TEACHER_ID, COURSE_ID, NAME, MAX_CAPACITY) VALUES (:leader_id,:course_id,:course_name,:course_capacity)";
-            using (OracleConnection connection = new OracleConnection(ConnectionString))
-            using (OracleCommand command = new OracleCommand(commandText, connection))
-            {
-                command.Parameters.Add(":leader_id", OracleDbType.Int32, leaderId, ParameterDirection.Input);
-                command.Parameters.Add(":course_id", OracleDbType.Int32, courseId, ParameterDirection.Input);
-                command.Parameters.Add(":course_name", OracleDbType.NVarchar2, courseName, ParameterDirection.Input);
-                command.Parameters.Add(":course_capacity", OracleDbType.Int32, maxCapacity, ParameterDirection.Input);
-                command.Connection.Open();
-                command.ExecuteNonQuery();
-                command.Connection.Close();
-            }
-        }
-
-        public void InsertStudentIntoGroup(string studentId, string groupId)
-        {
-            var commandText =
-                "INSERT INTO PRIVATE_MESSAGES(FROM_USER, TO_USER, CONTENT) VALUES (:sender_id,:receiver_id,:message_content)";
+            //FUNCTION NEW(p_teacher_id PKG_TEACHER.T_ID, p_name T_NAME, p_max_capacity T_MAX_CAPACITY) RETURN T_ID AS v_id T_ID;
+            var commandText = "PKG_GROUP.NEW";
             using (OracleConnection connection = new OracleConnection(ConnectionString))
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
 
-                //ASSIGN PARAMETERS TO BE PASSED
-                command.Parameters.Add("studentId", OracleDbType.Int32).Value = studentId;
-                command.Parameters.Add("groupId", OracleDbType.Int32).Value = groupId;
+                OracleParameter rval =
+                    command.Parameters.Add("T_ID", OracleDbType.Int32);
+                rval.Direction = ParameterDirection.ReturnValue;
+                OracleParameter p0 = command.Parameters.Add(":p_teacher_id", OracleDbType.Int32,
+                    group.TeacherId.ToString(), ParameterDirection.Input);
+                OracleParameter p1 = command.Parameters.Add(":p_name", OracleDbType.NVarchar2,
+                    group.Name, ParameterDirection.Input);
+                OracleParameter p2 = command.Parameters.Add(":p_max_capacity", OracleDbType.Int32,
+                    group.MaxCapacity.ToString(), ParameterDirection.Input);
 
-                //CALL PROCEDURE
+                connection.Open();
+                // Execute the command
                 command.ExecuteNonQuery();
+
+                // Construct an OracleDataReader from the REF CURSOR
+
+                int returnVal = int.Parse(rval.Value.ToString());
+                connection.Close();
+                return returnVal;
+            }
+        }
+
+        public void InsertStudentIntoGroup(Students student, Group group)
+        {
+            //PROCEDURE ADD_STUDENT(p_group_id T_ID, p_student_id PKG_STUDENT.T_ID) 
+            var commandText = "PKG_GROUP.ADD_STUDENT";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (var command = new OracleCommand(commandText, connection) {CommandType = CommandType.StoredProcedure})
+            {
+                command.Parameters.Add(":p_group_id", OracleDbType.Int32, group.GroupId.ToString(),
+                    ParameterDirection.Input);
+                command.Parameters.Add(":p_student_id", OracleDbType.Int32, student.StudentId.ToString(),
+                    ParameterDirection.Input);
+                
+                command.Connection.Open();
+                command.ExecuteNonQuery();
+                command.Connection.Close();
             }
         }
 
@@ -254,14 +268,10 @@ namespace DatabaseAdapter.OracleLib
                 command.Parameters.Add(":p_status", OracleDbType.Int32, "1", ParameterDirection.Input);
 
 
-                int returnedId;
                 command.Connection.Open();
-                using (var dr = command.ExecuteReader())
-                {
-                    returnedId = int.Parse(command.Parameters[":v_id"].Value.ToString());
+                command.ExecuteNonQuery();
+                var returnedId = int.Parse(command.Parameters[":v_id"].Value.ToString());
 
-                    dr.Close();
-                }
 
                 command.Connection.Close();
                 return returnedId;
@@ -374,7 +384,7 @@ namespace DatabaseAdapter.OracleLib
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
-                
+
                 OracleParameter p0 =
                     command.Parameters.Add("v_id", OracleDbType.Int32);
                 p0.Direction = ParameterDirection.ReturnValue;
@@ -787,12 +797,12 @@ namespace DatabaseAdapter.OracleLib
         public List<Courses> GetCourseAll()
         {
             //FUNCTION GET_ALL RETURN SYS_REFCURSOR
-            var commandText = "PKG_COURSE.GET_ALL";
+            var commandText = "VW_COURSES";
             List<Courses> classrooms = new List<Courses>();
             using (OracleConnection connection = new OracleConnection(ConnectionString))
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
-                command.CommandType = CommandType.StoredProcedure;
+                command.CommandType = CommandType.TableDirect;
                 connection.Open();
                 // Execute the command
                 var reader = command.ExecuteReader();
@@ -815,25 +825,30 @@ namespace DatabaseAdapter.OracleLib
         public Courses GetCourseById(int courseId)
         {
             //FUNCTION GET_BY_ID(p_course_id T_ID) RETURN SYS_REFCURSOR 
-            var commandText = "PKG_COURSES.GET_BY_ID";
-            Courses course = new Courses();
+            var commandText = "PKG_COURSE.GET_BY_ID";
+            Courses course = null;
             using (OracleConnection connection = new OracleConnection(ConnectionString))
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
-
+                OracleParameter p1 =
+                    command.Parameters.Add("ret", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
                 OracleParameter p0 = command.Parameters.Add(":p_course_id", OracleDbType.Int32,
                     courseId.ToString(), ParameterDirection.Input);
 
                 connection.Open();
                 // Execute the command
-                var reader = command.ExecuteReader();
+                command.ExecuteNonQuery();
+                var reader = ((OracleRefCursor) p1.Value).GetDataReader();
                 while (reader.Read())
                 {
-                    course.CourseId = reader.GetInt32("COURSE_ID");
-                    course.FullName = reader.GetString("FULL_NAME");
-                    course.ShortName = reader.GetString("SHORT_NAME");
-                    course.Description = reader.GetString("DESCRIPTION");
+                    course = new Courses
+                    {
+                        CourseId = reader.GetInt32("COURSE_ID"),
+                        FullName = reader.GetString("FULL_NAME"),
+                        ShortName = reader.GetString("SHORT_NAME"),
+                        Description = reader.GetString("DESCRIPTION")
+                    };
                 }
 
                 connection.Close();
@@ -1110,7 +1125,8 @@ namespace DatabaseAdapter.OracleLib
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
-                OracleParameter p0 = command.Parameters.Add("v_count", OracleDbType.Boolean, ParameterDirection.ReturnValue);
+                OracleParameter p0 =
+                    command.Parameters.Add("v_count", OracleDbType.Boolean, ParameterDirection.ReturnValue);
                 OracleParameter p1 = command.Parameters.Add(":p_user_id", OracleDbType.Int32,
                     user.UserId.ToString(), ParameterDirection.Input);
 
@@ -1118,7 +1134,7 @@ namespace DatabaseAdapter.OracleLib
                 // Execute the command
                 command.ExecuteNonQuery();
                 connection.Close();
-                OracleBoolean boolean = (OracleBoolean)p0.Value;
+                OracleBoolean boolean = (OracleBoolean) p0.Value;
                 return boolean.Value;
             }
         }
@@ -1169,7 +1185,7 @@ namespace DatabaseAdapter.OracleLib
                 // Execute the command
                 command.ExecuteNonQuery();
                 connection.Close();
-                OracleBoolean b = (OracleBoolean)p0.Value;
+                OracleBoolean b = (OracleBoolean) p0.Value;
                 return b.Value;
             }
         }
@@ -1183,15 +1199,16 @@ namespace DatabaseAdapter.OracleLib
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
-                OracleParameter p1 = command.Parameters.Add("result", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+                OracleParameter p1 =
+                    command.Parameters.Add("result", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
                 OracleParameter p0 = command.Parameters.Add(":p_teacher_id", OracleDbType.Int32,
                     teacherId.ToString(), ParameterDirection.Input);
 
                 connection.Open();
                 // Execute the command
                 command.ExecuteNonQuery();
-                OracleDataReader reader = ((OracleRefCursor)p1.Value).GetDataReader();
-                
+                OracleDataReader reader = ((OracleRefCursor) p1.Value).GetDataReader();
+
                 while (reader.Read())
                 {
                     User user = GetUserById(reader.GetInt32("USER_ID"));
@@ -1242,7 +1259,8 @@ namespace DatabaseAdapter.OracleLib
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
-                OracleParameter p1 = command.Parameters.Add("return", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+                OracleParameter p1 =
+                    command.Parameters.Add("return", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
                 OracleParameter p0 = command.Parameters.Add(":p_user_id", OracleDbType.Int32,
                     user.UserId.ToString(), ParameterDirection.Input);
 
@@ -1339,7 +1357,6 @@ namespace DatabaseAdapter.OracleLib
 
         public void SetUserAdmin(User user, bool value)
         {
-            
             //PROCEDURE UPDATE_ADMIN(p_user_id USERS.USER_ID%TYPE, p_admin USERS.ADMIN%TYPE) IS
             var commandText = "PKG_USER.UPDATE_ADMIN";
             using (OracleConnection connection = new OracleConnection(ConnectionString))
@@ -1355,7 +1372,7 @@ namespace DatabaseAdapter.OracleLib
                 connection.Open();
                 // Execute the command
                 command.ExecuteNonQuery();
-                
+
                 connection.Close();
                 user.Admin = value;
             }
@@ -1436,6 +1453,43 @@ namespace DatabaseAdapter.OracleLib
 
                 connection.Close();
             }
+        }
+
+        public Group GetGroupById(int groupId)
+        {
+            // FUNCTION GET_BY_ID(p_group_id T_ID) RETURN SYS_REFCURSOR
+            var commandText = "PKG_GROUP.GET_BY_ID";
+            Group group = null;
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                OracleParameter rval =
+                    command.Parameters.Add("result", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+                OracleParameter p0 = command.Parameters.Add(":p_group_id", OracleDbType.Int32,
+                    groupId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                OracleDataReader reader = ((OracleRefCursor) rval.Value).GetDataReader();
+
+                while (reader.Read())
+                {
+                    group = new Group()
+                    {
+                        Name = reader.GetString("GROUP_NAME"),
+                        GroupId = reader.GetInt32("GROUP_ID"),
+                        TeacherId = reader.GetInt32("TEACHER_ID"),
+                        ActualCapacity = reader.GetInt32("ACTUAL_CAPACITY"),
+                        MaxCapacity = reader.GetInt32("MAX_CAPACITY")
+                    };
+                }
+
+                connection.Close();
+            }
+
+            return group;
         }
     }
 }

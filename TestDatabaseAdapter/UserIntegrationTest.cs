@@ -60,7 +60,6 @@ namespace TestDatabaseAdapter
             int[] yyyy = new[] {1, 2, 3, 4, 5};
             for (int i = 30; i < 100; i++)
             {
-                //WHAT AM I DOING WITH My LIFE?!
                 _controls.AssignAsStudent(i,yyyy[random.Next(5)]);
             } 
             

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using DatabaseAdapter.OracleLib;
 using DatabaseAdapter.OracleLib.Models;
 using Microsoft.VisualBasic.FileIO;
@@ -8,7 +7,7 @@ using Xunit;
 namespace TestDatabaseAdapter
 {
     public class GroupsIntegrationTest
-    {
+    { 
         private readonly OracleDatabaseControls _controls =
             new OracleDatabaseControls("DATA SOURCE=localhost/XE;USER ID=schoold; password=heslo;");
 
@@ -33,6 +32,20 @@ namespace TestDatabaseAdapter
             Courses crs = _controls.GetCourseById(courses[0].CourseId);
             Assert.True(crs.Description == "New [UPDATED] Description" && crs.FullName ==  "New Updated FullName" && crs.ShortName == "NUFSH" && allCourses.Count > 0);
 
+        }
+
+        [Fact]
+        public void GetAll()
+        {
+            List<Courses> courses = _controls.GetCourseAll();
+            Assert.True(courses.Count > 0);
+        }
+
+        [Fact]
+        public void GetById()
+        {
+            Courses course = _controls.GetCourseById(1000);
+            Assert.NotNull(course);
         }
         
         protected List<Courses> LoadCoursesFromCsv(string path)
