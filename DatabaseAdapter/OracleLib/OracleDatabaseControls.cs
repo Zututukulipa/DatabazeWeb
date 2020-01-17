@@ -48,21 +48,33 @@ namespace DatabaseAdapter.OracleLib
             }
         }
 
-        public void InsertComment(string userId, string postId, string content)
+        public int InsertComment(Comments comment, int messageId)
         {
-            var commandText =
-                "INSERT INTO COMMENTS(USER_ID, MESSAGE_ID, CONTENT) VALUES (:user_id,:post_id,:comment_content)";
+            //FUNCTION NEW(p_user PKG_USER.T_ID, p_message PKG_GMSG.T_ID, p_content T_CONTENT) RETURN T_ID AS v_id T_ID;
+            var commandText = "PKG_COMMENT.NEW";
+            int courseId = -1;
             using (OracleConnection connection = new OracleConnection(ConnectionString))
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
-                command.Parameters.Add(":user_id", OracleDbType.Int32, userId, ParameterDirection.Input);
-                command.Parameters.Add(":post_id", OracleDbType.Int32, postId, ParameterDirection.Input);
-                command.Parameters.Add(":comment_content", OracleDbType.NVarchar2, content, ParameterDirection.Input);
-                command.Parameters.Add(":comment_content", OracleDbType.NVarchar2).Value = "dsa";
+                command.CommandType = CommandType.StoredProcedure;
+                OracleParameter p1 = command.Parameters.Add(":v_id", OracleDbType.Int32, courseId,
+                    ParameterDirection.ReturnValue);
+                command.Parameters.Add(":p_user", OracleDbType.Int32, comment.UserId.ToString(),
+                    ParameterDirection.Input);
+                command.Parameters.Add(":p_message", OracleDbType.Int32, messageId.ToString(),
+                    ParameterDirection.Input);
+                //cmd.Parameters.Add(new SqlParameter("@TaxRate", string.IsNullOrEmpty(taxRateTxt.Text) ? (object)DBNull.Value : taxRateTxt.Text));
+                command.Parameters.Add(":p_content", OracleDbType.NVarchar2,
+                    string.IsNullOrEmpty(comment.Content) ? "Unavailable" : comment.Content,
+                    ParameterDirection.Input);
                 command.Connection.Open();
                 command.ExecuteNonQuery();
+                courseId = int.Parse(p1.Value.ToString());
+
                 command.Connection.Close();
             }
+
+            return courseId;
         }
 
         public int InsertCourse(Courses course)
@@ -546,7 +558,7 @@ namespace DatabaseAdapter.OracleLib
                 connection.Close();
             }
         }
-        
+
         public void RemoveMessage(int messageId)
         {
             var commandText = "PKG_PMSG.REMOVE";
@@ -932,7 +944,8 @@ namespace DatabaseAdapter.OracleLib
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
-                OracleParameter ret = command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+                OracleParameter ret =
+                    command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
                 OracleParameter p0 = command.Parameters.Add(":p_course_id", OracleDbType.Int32,
                     messageId.ToString(), ParameterDirection.Input);
 
@@ -967,8 +980,9 @@ namespace DatabaseAdapter.OracleLib
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
-                
-                OracleParameter ret = command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+
+                OracleParameter ret =
+                    command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
 
                 OracleParameter p0 = command.Parameters.Add(":p_user", OracleDbType.Int32,
                     us.UserId.ToString(), ParameterDirection.Input);
@@ -1861,6 +1875,264 @@ namespace DatabaseAdapter.OracleLib
             }
 
             return courses;
+        }
+
+        public int SendGroupMessage(GroupMessages groupMessage)
+        {
+            int returnVal = -1;
+            // FUNCTION NEW(p_group PKG_GROUP.T_ID, p_user PKG_USER.T_ID, p_content T_CONTENT) RETURN T_ID 
+            var commandText = "PKG_GMSG.NEW";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter rval =
+                    command.Parameters.Add("v_id", OracleDbType.Int32);
+                rval.Direction = ParameterDirection.ReturnValue;
+                OracleParameter p2 = command.Parameters.Add(":p_group", OracleDbType.Int32,
+                    groupMessage.GroupId.ToString(), ParameterDirection.Input);
+                OracleParameter p1 =
+                    command.Parameters.Add(":p_user", OracleDbType.Int32, groupMessage.UserId.ToString(),
+                        ParameterDirection.Input);
+                OracleParameter p3 = command.Parameters.Add(":p_content", OracleDbType.NVarchar2, groupMessage.Content,
+                    ParameterDirection.Input);
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                returnVal = int.Parse(rval.Value.ToString());
+                connection.Close();
+                return returnVal;
+            }
+        }
+
+        public List<GroupMessages> GetGroupMessageAll()
+        {
+            //FUNCTION GET_ALL RETURN SYS_REFCURSOR AS
+            // v_cursor SYS_REFCURSOR;
+            List<GroupMessages> groupMessages = new List<GroupMessages>();
+            var commandText = "VW_GROUP_MESSAGES";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.TableDirect;
+                connection.Open();
+                // Execute the command
+                OracleDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    GroupMessages gMessage = new GroupMessages()
+                    {
+                        Created = reader.GetDateTime("CREATED"), Content = reader.GetString("CONTENT"),
+                        GmsgId = reader.GetInt32("MESSAGE_ID"), GroupId = reader.GetInt32("GROUP_ID"),
+                        UserId = reader.GetInt32("AUTHOR_ID")
+                    };
+                    groupMessages.Add(gMessage);
+                }
+
+                connection.Close();
+            }
+
+            return groupMessages;
+        }
+
+        public List<GroupMessages> GetGroupMessageByGroup(Group group)
+        {
+            //FUNCTION GET_BY_GROUP(p_group PKG_GROUP.T_ID) RETURN SYS_REFCURSOR AS
+            //v_cursor SYS_REFCURSOR;
+            List<GroupMessages> groupMessages = new List<GroupMessages>();
+            var commandText = "PKG_GMSG.GET_BY_GROUP";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                OracleParameter retVal =
+                    command.Parameters.Add("v_id", OracleDbType.RefCursor);
+                retVal.Direction = ParameterDirection.ReturnValue;
+                OracleParameter p0 =
+                    command.Parameters.Add(":p_group", OracleDbType.Int32, group.GroupId.ToString(),
+                        ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                OracleDataReader reader = ((OracleRefCursor) retVal.Value).GetDataReader();
+                while (reader.Read())
+                {
+                    GroupMessages gMessage = new GroupMessages()
+                    {
+                        Created = reader.GetDateTime("CREATED"), Content = reader.GetString("CONTENT"),
+                        GmsgId = reader.GetInt32("MESSAGE_ID"), GroupId = reader.GetInt32("GROUP_ID"),
+                        UserId = reader.GetInt32("AUTHOR_ID")
+                    };
+                    groupMessages.Add(gMessage);
+                }
+
+                connection.Close();
+            }
+
+            return groupMessages;
+        }
+
+        public GroupMessages GetGroupMessageById(int messageId)
+        {
+            // FUNCTION GET_BY_ID(p_message T_ID) RETURN SYS_REFCURSOR AS
+            // v_cursor SYS_REFCURSOR;
+            var commandText = "PKG_GMSG.GET_BY_ID";
+            GroupMessages groupMessage = null;
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                OracleParameter rval =
+                    command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+                OracleParameter p0 = command.Parameters.Add(":p_message", OracleDbType.Int32,
+                    messageId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                OracleDataReader reader = ((OracleRefCursor) rval.Value).GetDataReader();
+
+                if (reader.Read())
+                {
+                    groupMessage = new GroupMessages()
+                    {
+                        Created = reader.GetDateTime("CREATED"), Content = reader.GetString("CONTENT"),
+                        GmsgId = reader.GetInt32("MESSAGE_ID"), GroupId = reader.GetInt32("GROUP_ID"),
+                        UserId = reader.GetInt32("AUTHOR_ID")
+                    };
+                }
+
+                connection.Close();
+            }
+
+            return groupMessage;
+        }
+
+        public List<GroupMessages> GetGroupMessagesByUser(int userId)
+        {
+            //FUNCTION GET_BY_USER(p_user PKG_USER.T_ID) RETURN SYS_REFCURSOR AS
+            //v_cursor SYS_REFCURSOR;
+            List<GroupMessages> groupMessages = new List<GroupMessages>();
+            var commandText = "PKG_GMSG.GET_BY_USER";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                OracleParameter retVal =
+                    command.Parameters.Add("v_id", OracleDbType.RefCursor);
+                retVal.Direction = ParameterDirection.ReturnValue;
+                OracleParameter p0 =
+                    command.Parameters.Add(":p_user", OracleDbType.Int32, userId.ToString(),
+                        ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                OracleDataReader reader = ((OracleRefCursor) retVal.Value).GetDataReader();
+                while (reader.Read())
+                {
+                    GroupMessages gMessage = new GroupMessages()
+                    {
+                        Created = reader.GetDateTime("CREATED"), Content = reader.GetString("CONTENT"),
+                        GmsgId = reader.GetInt32("MESSAGE_ID"), GroupId = reader.GetInt32("GROUP_ID"),
+                        UserId = reader.GetInt32("AUTHOR_ID")
+                    };
+                    groupMessages.Add(gMessage);
+                }
+
+                connection.Close();
+            }
+
+            return groupMessages;
+        }
+
+        public void UpdateGroupMessageContent(GroupMessages groupMessage, string updatedContent)
+        {
+            //    PROCEDURE UPDATE_CONTENT(p_message T_ID, p_content T_CONTENT) AS
+            var commandText = "PKG_GMSG.UPDATE_CONTENT";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p1 = command.Parameters.Add(":p_message", OracleDbType.Int32,
+                    groupMessage.GmsgId.ToString(), ParameterDirection.Input);
+                OracleParameter p2 = command.Parameters.Add(":p_content", OracleDbType.NVarchar2,
+                    updatedContent, ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
+
+        public void RemoveGroupMessage(int groupMessageId)
+        {
+            //    PROCEDURE REMOVE(p_message T_ID)
+            var commandText = "PKG_GMSG.REMOVE";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p1 = command.Parameters.Add(":p_message", OracleDbType.Int32,
+                    groupMessageId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
+
+        public void UpdateGroupMessageGroup(int groupMessageId, int updatedGroupId)
+        {
+            //PROCEDURE UPDATE_GROUP(p_message T_ID, p_group PKG_GROUP.T_ID) 
+            var commandText = "PKG_GMSG.UPDATE_GROUP";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p1 = command.Parameters.Add(":p_message", OracleDbType.Int32,
+                    groupMessageId.ToString(), ParameterDirection.Input);
+                OracleParameter p2 = command.Parameters.Add(":p_group", OracleDbType.Int32,
+                    updatedGroupId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
+
+        public void UpdateGroupMessageOwner(int groupMessageId, int newMessageOwnerId)
+        {
+            //TODO COTO KURVA JIRKO?!
+            //PROCEDURE UPDATE_USER(p_message T_ID, p_user PKG_USER.T_ID)
+            var commandText = "PKG_GMSG.UPDATE_GROUP";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p1 = command.Parameters.Add(":p_message", OracleDbType.Int32,
+                    groupMessageId.ToString(), ParameterDirection.Input);
+                OracleParameter p2 = command.Parameters.Add(":p_user", OracleDbType.Int32,
+                    newMessageOwnerId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
         }
     }
 }
