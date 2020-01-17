@@ -546,6 +546,25 @@ namespace DatabaseAdapter.OracleLib
                 connection.Close();
             }
         }
+        
+        public void RemoveMessage(int messageId)
+        {
+            var commandText = "PKG_PMSG.REMOVE";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p2 = command.Parameters.Add(":p_id", OracleDbType.Int32,
+                    messageId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
 
         public void AssignAsStudent(in int i, int i1)
         {
@@ -878,12 +897,12 @@ namespace DatabaseAdapter.OracleLib
         public List<PrivateMessages> GetMessageAll()
         {
             //FUNCTION GET_ALL RETURN SYS_REFCURSOR
-            var commandText = "PKG_PMSG.GET_ALL";
+            var commandText = "VW_PRIVATE_MESSAGES";
             List<PrivateMessages> pmessages = new List<PrivateMessages>();
             using (OracleConnection connection = new OracleConnection(ConnectionString))
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
-                command.CommandType = CommandType.StoredProcedure;
+                command.CommandType = CommandType.TableDirect;
                 connection.Open();
                 // Execute the command
                 var reader = command.ExecuteReader();
@@ -908,25 +927,29 @@ namespace DatabaseAdapter.OracleLib
         {
             //FUNCTION GET_BY_ID(p_course_id T_ID) RETURN SYS_REFCURSOR 
             var commandText = "PKG_PMSG.GET_BY_ID";
-            PrivateMessages pMessage = new PrivateMessages();
+            PrivateMessages pMessage = null;
             using (OracleConnection connection = new OracleConnection(ConnectionString))
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
-
+                OracleParameter ret = command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
                 OracleParameter p0 = command.Parameters.Add(":p_course_id", OracleDbType.Int32,
                     messageId.ToString(), ParameterDirection.Input);
 
                 connection.Open();
                 // Execute the command
-                var reader = command.ExecuteReader();
+                command.ExecuteNonQuery();
+                var reader = ((OracleRefCursor) ret.Value).GetDataReader();
                 while (reader.Read())
                 {
-                    pMessage.PmsgId = reader.GetInt32("MESSAGE_ID");
-                    pMessage.FromUser = GetUserById(reader.GetInt32("FROM_USER_ID"));
-                    pMessage.ToUser = GetUserById(reader.GetInt32("TO_USER_ID"));
-                    pMessage.Content = reader.GetString("MESSAGE_CONTENT");
-                    pMessage.Created = reader.GetDateTime("MESSAGE_CREATED");
+                    pMessage = new PrivateMessages()
+                    {
+                        PmsgId = reader.GetInt32("MESSAGE_ID"),
+                        FromUser = GetUserById(reader.GetInt32("FROM_USER_ID")),
+                        ToUser = GetUserById(reader.GetInt32("TO_USER_ID")),
+                        Content = reader.GetString("MESSAGE_CONTENT"),
+                        Created = reader.GetDateTime("MESSAGE_CREATED")
+                    };
                 }
 
                 connection.Close();
@@ -944,13 +967,16 @@ namespace DatabaseAdapter.OracleLib
             using (OracleCommand command = new OracleCommand(commandText, connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
+                
+                OracleParameter ret = command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
 
                 OracleParameter p0 = command.Parameters.Add(":p_user", OracleDbType.Int32,
                     us.UserId.ToString(), ParameterDirection.Input);
 
                 connection.Open();
                 // Execute the command
-                var reader = command.ExecuteReader();
+                command.ExecuteNonQuery();
+                var reader = ((OracleRefCursor) ret.Value).GetDataReader();
                 while (reader.Read())
                 {
                     PrivateMessages pMessage = new PrivateMessages();
