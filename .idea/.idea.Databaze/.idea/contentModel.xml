@@ -203,6 +203,7 @@
         <e p="DataGen.cs" t="Include" />
         <e p="GroupTest.cs" t="Include" />
         <e p="MessagingIntegrationTest.cs" t="Include" />
+        <e p="PrivateMessageTest.cs" t="Include" />
         <e p="StudentTest.cs" t="Include" />
         <e p="TeacherTest.cs" t="Include" />
         <e p="TestDatabaseAdapter.csproj" t="IncludeRecursive" />

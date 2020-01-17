@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using DatabaseAdapter.OracleLib;
 using DatabaseAdapter.OracleLib.Enums;
 using DatabaseAdapter.OracleLib.Models;
@@ -14,8 +16,16 @@ namespace TestDatabaseAdapter
         [Fact]
         public void Create()
         {
-            User user = Controls.GetUserById(777);
-            Students student = Controls.GetStudentById(Controls.InsertStudent(user));
+            Random rnd = new Random();
+            for (int i = 0; i < 20; i++)
+            {
+                User us = Controls.GetUserById(rnd.Next(50, 500));
+                if (us != null)
+                {
+                    Controls.InsertStudent(us);
+                }
+            }
+            Students student = Controls.GetStudentById(Controls.InsertStudent(Controls.GetUserById(rnd.Next(50,500))));
             List<Students> students = Controls.GetStudentAll();
             Assert.NotNull(students.Find(std => student.StudentId == std.StudentId));
         }
