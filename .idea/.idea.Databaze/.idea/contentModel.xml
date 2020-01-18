@@ -201,6 +201,8 @@
         <e p="CommentTest.cs" t="Include" />
         <e p="CourseTest.cs" t="Include" />
         <e p="DataGen.cs" t="Include" />
+        <e p="FileTest.cs" t="Include" />
+        <e p="GradesTest.cs" t="Include" />
         <e p="GroupMessageTest.cs" t="Include" />
         <e p="GroupTest.cs" t="Include" />
         <e p="MessagingIntegrationTest.cs" t="Include" />

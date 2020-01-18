@@ -2134,5 +2134,681 @@ namespace DatabaseAdapter.OracleLib
                 connection.Close();
             }
         }
+
+        public List<Comments> GetComments()
+        {
+            //FUNCTION GET_ALL RETURN SYS_REFCURSOR
+            List<Comments> comments = new List<Comments>();
+            var commandText = "VW_COMMENTS";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.TableDirect;
+
+                connection.Open();
+                // Execute the command
+                OracleDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    int usrId = reader.GetInt32("COMMENT_AUTHOR_ID");
+                    Comments comment = new Comments()
+                    {
+                        UserId = usrId,
+                        CommentId = reader.GetInt32("COMMENT_ID"),
+                        MessageId = reader.GetInt32("MESSAGE_ID"),
+                        Created = reader.GetDateTime("MESSAGE_CREATED"),
+                        Content = reader.GetString("MESSAGE_CONTENT"),
+                        ContentOwner = GetUserById(usrId)
+                    };
+                    comments.Add(comment);
+                }
+
+                connection.Close();
+            }
+
+            return comments;
+        }
+
+        public Comments GetCommentById(int commentId)
+        {
+            //  FUNCTION GET_BY_ID(p_comment T_ID) RETURN SYS_REFCURSOR AS
+            // v_cursor SYS_REFCURSOR;
+            var commandText = "PKG_COMMENT.GET_BY_ID";
+            Comments comment = null;
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                OracleParameter rval =
+                    command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+                OracleParameter p0 = command.Parameters.Add(":p_comment", OracleDbType.Int32,
+                    commentId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                OracleDataReader reader = ((OracleRefCursor) rval.Value).GetDataReader();
+
+                if (reader.Read())
+                {
+                    int usrId = reader.GetInt32("COMMENT_AUTHOR_ID");
+                    comment = new Comments()
+                    {
+                        UserId = usrId,
+                        CommentId = reader.GetInt32("COMMENT_ID"),
+                        MessageId = reader.GetInt32("MESSAGE_ID"),
+                        Created = reader.GetDateTime("MESSAGE_CREATED"),
+                        Content = reader.GetString("COMMENT_CONTENT"),
+                        ContentOwner = GetUserById(usrId)
+                    };
+                }
+
+                connection.Close();
+            }
+
+            return comment;
+        }
+
+        public List<Comments> GetCommentsByMessage(int messageId)
+        {
+            //FUNCTION GET_BY_MESSAGE(p_message PKG_GMSG.T_ID) RETURN SYS_REFCURSOR AS
+            //v_cursor SYS_REFCURSOR;
+            var commandText = "PKG_COMMENT.GET_BY_MESSAGE";
+            List<Comments> comments = new List<Comments>();
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                OracleParameter rval =
+                    command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+                OracleParameter p0 = command.Parameters.Add(":p_message", OracleDbType.Int32,
+                    messageId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                OracleDataReader reader = ((OracleRefCursor) rval.Value).GetDataReader();
+
+                while (reader.Read())
+                {
+                    int usrId = reader.GetInt32("COMMENT_AUTHOR_ID");
+                    comments.Add(new Comments()
+                        {
+                            UserId = usrId,
+                            CommentId = reader.GetInt32("COMMENT_ID"),
+                            MessageId = reader.GetInt32("MESSAGE_ID"),
+                            Created = reader.GetDateTime("MESSAGE_CREATED"),
+                            Content = reader.GetString("MESSAGE_CONTENT"),
+                            ContentOwner = GetUserById(usrId)
+                        }
+                    );
+                }
+
+                connection.Close();
+            }
+
+            return comments;
+        }
+
+        public List<Comments> GetCommentsByUser(User user)
+        {
+            //UNCTION GET_BY_USER(p_user PKG_USER.T_ID) RETURN SYS_REFCURSOR AS
+            //v_cursor SYS_REFCURSOR;
+            var commandText = "PKG_COMMENT.GET_BY_USER";
+            List<Comments> comments = new List<Comments>();
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                OracleParameter rval =
+                    command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+                OracleParameter p0 = command.Parameters.Add(":p_user", OracleDbType.Int32,
+                    user.UserId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                OracleDataReader reader = ((OracleRefCursor) rval.Value).GetDataReader();
+
+                while (reader.Read())
+                {
+                    int usrId = reader.GetInt32("COMMENT_AUTHOR_ID");
+                    comments.Add(new Comments()
+                        {
+                            UserId = usrId,
+                            CommentId = reader.GetInt32("COMMENT_ID"),
+                            MessageId = reader.GetInt32("MESSAGE_ID"),
+                            Created = reader.GetDateTime("MESSAGE_CREATED"),
+                            Content = reader.GetString("MESSAGE_CONTENT"),
+                            ContentOwner = GetUserById(usrId)
+                        }
+                    );
+                }
+
+                connection.Close();
+            }
+
+            return comments;
+        }
+
+        public void RemoveCommentById(int gMessageId)
+        {
+            //PROCEDURE REMOVE(p_comment T_ID)
+            var commandText = "PKG_GMSG.REMOVE";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p1 = command.Parameters.Add(":p_comment", OracleDbType.Int32,
+                    gMessageId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
+
+        public void RemoveComment(Comments commentToBeRemoved)
+        {
+            //PROCEDURE REMOVE(p_comment T_ID)
+            var commandText = "PKG_GMSG.REMOVE";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p1 = command.Parameters.Add(":p_comment", OracleDbType.Int32,
+                    commentToBeRemoved.CommentId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
+
+        public void UpdateCommentContent(Comments comment, string updatedContent)
+        {
+            // PROCEDURE UPDATE_CONTENT(p_comment T_ID, p_content T_CONTENT
+            var commandText = "PKG_COMMENT.UPDATE_CONTENT";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p1 = command.Parameters.Add(":p_comment", OracleDbType.Int32,
+                    comment.CommentId.ToString(), ParameterDirection.Input);
+                OracleParameter p2 = command.Parameters.Add(":p_content", OracleDbType.NVarchar2,
+                    updatedContent, ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
+
+        public void UpdateCommentContent(int commentId, string updatedContent)
+        {
+            // PROCEDURE UPDATE_CONTENT(p_comment T_ID, p_content T_CONTENT
+            var commandText = "PKG_GMSG.UPDATE_CONTENT";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p1 = command.Parameters.Add(":p_comment", OracleDbType.Int32,
+                    commentId.ToString(), ParameterDirection.Input);
+                OracleParameter p2 = command.Parameters.Add(":p_content", OracleDbType.NVarchar2,
+                    updatedContent, ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
+
+        public void UpdateCommentPost(int commentId, int newPostId)
+        {
+            //PROCEDURE UPDATE_MESSAGE(p_comment T_ID, p_message PKG_GMSG.T_ID) 
+            var commandText = "PKG_COMMENT.UPDATE_MESSAGE";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p1 = command.Parameters.Add(":p_comment", OracleDbType.Int32,
+                    commentId.ToString(), ParameterDirection.Input);
+                OracleParameter p2 = command.Parameters.Add(":p_message", OracleDbType.Int32,
+                    newPostId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
+
+        public void UpdateCommentOwner(int commentId, int newUserId)
+        {
+            //PROCEDURE UPDATE_USER(p_comment T_ID, p_user PKG_USER.T_ID) 
+            var commandText = "PKG_COMMENT.UPDATE_USER";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p1 = command.Parameters.Add(":p_comment", OracleDbType.Int32,
+                    commentId.ToString(), ParameterDirection.Input);
+                OracleParameter p2 = command.Parameters.Add(":p_user", OracleDbType.Int32,
+                    newUserId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
+
+        public int InsertTimetable(Timetables timetable)
+        {
+            //  FUNCTION NEW(p_group_id PKG_GROUP.T_ID, p_classroom_id PKG_CLASSROOM.T_ID, p_begin T_BEGIN,
+            //p_end T_END) RETURN T_ID 
+            var commandText = "PKG_TIMETABLE.NEW";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p0 = command.Parameters.Add("T_ID", OracleDbType.Int32, ParameterDirection.ReturnValue);
+                OracleParameter p1 = command.Parameters.Add(":p_group_id", OracleDbType.Int32,
+                    timetable.GroupId.ToString(), ParameterDirection.Input);
+                OracleParameter p2 = command.Parameters.Add(":p_classroom_id", OracleDbType.Int32,
+                    timetable.ClassroomId.ToString(), ParameterDirection.Input);
+                OracleParameter p3 = command.Parameters.Add(":p_begin", OracleDbType.Date,
+                    timetable.Begin.ToString("MM/dd/yyyy hh:mm:ss tt"), ParameterDirection.Input);
+                OracleParameter p4 = command.Parameters.Add(":p_end", OracleDbType.Date,
+                    timetable.End.ToString("MM/dd/yyyy hh:mm:ss tt"), ParameterDirection.Input);
+
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+
+                timetable.TimetableId = int.Parse(p0.Value.ToString());
+
+
+                connection.Close();
+            }
+
+            return timetable.TimetableId;
+        }
+
+        public int InsertGrade(Grades grade)
+        {
+            // FUNCTION NEW(p_student_id PKG_STUDENT.T_ID, p_teacher_id PKG_TEACHER.T_ID, p_course_id PKG_COURSE.T_ID,
+            // p_value T_VALUE, p_description T_DESCRIPTION) RETURN T_ID
+            var commandText = "PKG_GRADES.NEW";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p0 = command.Parameters.Add("T_ID", OracleDbType.Int32, ParameterDirection.ReturnValue);
+                OracleParameter p1 = command.Parameters.Add(":p_student_id", OracleDbType.Int32,
+                    grade.StudentId.ToString(), ParameterDirection.Input);
+                OracleParameter p2 = command.Parameters.Add(":p_teacher_id", OracleDbType.Int32,
+                    grade.TeacherId.ToString(), ParameterDirection.Input);
+                OracleParameter p3 = command.Parameters.Add(":p_course_id", OracleDbType.Int32,
+                    grade.CourseId.ToString(), ParameterDirection.Input);
+                OracleParameter p4 = command.Parameters.Add(":p_value", OracleDbType.Int32,
+                    grade.Value.ToString(), ParameterDirection.Input);
+                OracleParameter p5 = command.Parameters.Add(":p_description", OracleDbType.NVarchar2,
+                    grade.Description.ToString(), ParameterDirection.Input);
+
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+
+                grade.GradeId = int.Parse(p0.Value.ToString());
+
+
+                connection.Close();
+            }
+
+            return grade.GradeId;
+        }
+
+        public List<Grades> GetGrades()
+        {
+            //FUNCTION GET_ALL RETURN SYS_REFCURSOR
+            List<Grades> grades = new List<Grades>();
+            var commandText = "VW_GRADES";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.TableDirect;
+
+                connection.Open();
+                // Execute the command
+                OracleDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Grades grade = new Grades()
+                    {
+                        Created = reader.GetDateTime("GRADE_CREATED"),
+                        Description = reader.GetString("GRADE_DESCRIPTION"),
+                        Value = reader.GetInt32("GRADE_VALUE"),
+                        CourseId = reader.GetInt32("COURSE_ID"),
+                        StudentId = reader.GetInt32("STUDENT_ID"),
+                        TeacherId = reader.GetInt32("TEACHER_ID"),
+                        GradeId = reader.GetInt32("GRADE_ID")
+                    };
+                    grades.Add(grade);
+                }
+
+                connection.Close();
+            }
+
+            return grades;
+        }
+
+        public List<Grades> GetGrades(Courses course)
+        {
+            //FUNCTION GET_BY_COURSE(p_course_id PKG_COURSE.T_ID) RETURN SYS_REFCURSOR AS
+            //v_cursor SYS_REFCURSOR;
+            var commandText = "PKG_GRADES.GET_BY_COURSE";
+            List<Grades> grades = new List<Grades>();
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                OracleParameter rVal =
+                    command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+                OracleParameter p0 = command.Parameters.Add(":p_course_id", OracleDbType.Int32,
+                    course.CourseId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                OracleDataReader reader = ((OracleRefCursor) rVal.Value).GetDataReader();
+
+                while (reader.Read())
+                {
+                    grades.Add(new Grades()
+                        {
+                            Created = reader.GetDateTime("CREATED"),
+                            Description = reader.GetString("DESCRIPTION"),
+                            Value = reader.GetInt32("VALUE"),
+                            CourseId = reader.GetInt32("COURSE_ID"),
+                            StudentId = reader.GetInt32("STUDENT_ID"),
+                            TeacherId = reader.GetInt32("TEACHER_ID"),
+                            GradeId = reader.GetInt32("GRADE_ID")
+                        }
+                    );
+                }
+
+                connection.Close();
+            }
+
+            return grades;
+        }
+
+        public Grades GetGrade(int gradeId)
+        {
+            //FUNCTION GET_BY_ID(p_grade_id T_ID) RETURN SYS_REFCURSOR AS
+            // v_cursor SYS_REFCURSOR;
+            var commandText = "PKG_GRADES.GET_BY_ID";
+            Grades grade = null;
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                OracleParameter rVal =
+                    command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+                OracleParameter p0 = command.Parameters.Add(":p_comment", OracleDbType.Int32,
+                    gradeId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                OracleDataReader reader = ((OracleRefCursor) rVal.Value).GetDataReader();
+
+                if (reader.Read())
+                {
+                    grade = new Grades()
+                    {
+                        Created = reader.GetDateTime("GRADE_CREATED"),
+                        Description = reader.GetString("GRADE_DESCRIPTION"),
+                        Value = reader.GetInt32("GRADE_VALUE"),
+                        CourseId = reader.GetInt32("COURSE_ID"),
+                        StudentId = reader.GetInt32("STUDENT_ID"),
+                        TeacherId = reader.GetInt32("TEACHER_ID"),
+                        GradeId = reader.GetInt32("GRADE_ID")
+                    };
+                }
+
+                connection.Close();
+            }
+
+            return grade;
+        }
+
+        public List<Grades> GetGrades(Students student)
+        {
+            //FUNCTION GET_BY_STUDENT(p_student_id PKG_STUDENT.T_ID) RETURN SYS_REFCURSOR AS
+            //v_cursor SYS_REFCURSOR;
+            var commandText = "PKG_GRADES.GET_BY_STUDENT";
+            List<Grades> grades = new List<Grades>();
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                OracleParameter rVal =
+                    command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+                OracleParameter p0 = command.Parameters.Add(":p_student_id", OracleDbType.Int32,
+                    student.StudentId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                OracleDataReader reader = ((OracleRefCursor) rVal.Value).GetDataReader();
+
+                while (reader.Read())
+                {
+                    grades.Add(new Grades()
+                        {
+                            Created = reader.GetDateTime("GRADE_CREATED"),
+                            Description = reader.GetString("GRADE_DESCRIPTION"),
+                            Value = reader.GetInt32("GRADE_VALUE"),
+                            CourseId = reader.GetInt32("COURSE_ID"),
+                            StudentId = reader.GetInt32("STUDENT_ID"),
+                            TeacherId = reader.GetInt32("TEACHER_ID"),
+                            GradeId = reader.GetInt32("GRADE_ID")
+                        }
+                    );
+                }
+
+                connection.Close();
+            }
+
+            return grades;
+        }
+
+        public List<Grades> GetGrades(Teachers teacher)
+        {
+            //FUNCTION GET_BY_TEACHER(p_teacher_id PKG_TEACHER.T_ID) RETURN SYS_REFCURSOR AS
+            //v_cursor SYS_REFCURSOR;
+            var commandText = "PKG_GRADES.GET_BY_TEACHER";
+            List<Grades> grades = new List<Grades>();
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                OracleParameter rVal =
+                    command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+                OracleParameter p0 = command.Parameters.Add(":p_teacher_id", OracleDbType.Int32,
+                    teacher.TeacherId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                OracleDataReader reader = ((OracleRefCursor) rVal.Value).GetDataReader();
+
+                while (reader.Read())
+                {
+                    grades.Add(new Grades()
+                        {
+                            Created = reader.GetDateTime("GRADE_CREATED"),
+                            Description = reader.GetString("GRADE_DESCRIPTION"),
+                            Value = reader.GetInt32("GRADE_VALUE"),
+                            CourseId = reader.GetInt32("COURSE_ID"),
+                            StudentId = reader.GetInt32("STUDENT_ID"),
+                            TeacherId = reader.GetInt32("TEACHER_ID"),
+                            GradeId = reader.GetInt32("GRADE_ID")
+                        }
+                    );
+                }
+
+                connection.Close();
+            }
+
+            return grades;
+        }
+
+        public void RemoveGrade(int gradeId)
+        {
+            //PROCEDURE REMOVE(p_grade_id T_ID)
+            var commandText = "PKG_GRADES.REMOVE";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p2 = command.Parameters.Add(":p_grade_id", OracleDbType.Int32,
+                    gradeId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                // Construct an OracleDataReader from the REF CURSOR
+                connection.Close();
+            }
+        }
+
+        public void UpdateGradeCourse(Grades grade, int courseId)
+        {
+            // PROCEDURE UPDATE_COURSE(p_grade_id T_ID, p_course_id PKG_COURSE.T_ID)
+            var commandText = "PKG_GRADES.UPDATE_COURSE";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // FUNCTION GET_BY_ID(p_id T_ID) RETURN SYS_REFCURSOR AS
+                OracleParameter p0 = command.Parameters.Add(":p_grade_id", OracleDbType.Int32,
+                    grade.GradeId.ToString(), ParameterDirection.Input);
+                OracleParameter p1 = command.Parameters.Add(":p_course_id", OracleDbType.Int32,
+                    courseId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                command.ExecuteNonQuery();
+                connection.Close();
+            }
+        }
+
+        public void UpdateGradeDescription(Grades grade, string description)
+        {
+            // PROCEDURE UPDATE_DESCRIPTION(p_grade_id T_ID, p_description T_DESCRIPTION)
+            var commandText = "PKG_GRADES.UPDATE_DESCRIPTION";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // FUNCTION GET_BY_ID(p_id T_ID) RETURN SYS_REFCURSOR AS
+                OracleParameter p0 = command.Parameters.Add(":p_grade_id", OracleDbType.Int32,
+                    grade.GradeId.ToString(), ParameterDirection.Input);
+                OracleParameter p1 = command.Parameters.Add(":p_description", OracleDbType.NVarchar2,
+                    description, ParameterDirection.Input);
+
+                connection.Open();
+                command.ExecuteNonQuery();
+                connection.Close();
+            }
+        }
+
+        public void UpdateGradeStudent(Grades grade, int studentId)
+        {
+            // PROCEDURE UPDATE_STUDENT(p_grade_id T_ID, p_student_id PKG_STUDENT.T_ID) 
+            var commandText = "PKG_GRADES.UPDATE_STUDENT";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // FUNCTION GET_BY_ID(p_id T_ID) RETURN SYS_REFCURSOR AS
+                OracleParameter p0 = command.Parameters.Add(":p_grade_id", OracleDbType.Int32,
+                    grade.GradeId.ToString(), ParameterDirection.Input);
+                OracleParameter p1 = command.Parameters.Add(":p_student_id", OracleDbType.NVarchar2,
+                    studentId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                command.ExecuteNonQuery();
+                connection.Close();
+            }
+        }
+
+        public void UpdateGradeTeacher(Grades grade, int teacherId)
+        {
+            // PROCEDURE UPDATE_TEACHER(p_grade_id T_ID, p_teacher_id PKG_TEACHER.T_ID)
+            var commandText = "PKG_GRADES.UPDATE_TEACHER";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // FUNCTION GET_BY_ID(p_id T_ID) RETURN SYS_REFCURSOR AS
+                OracleParameter p0 = command.Parameters.Add(":p_grade_id", OracleDbType.Int32,
+                    grade.GradeId.ToString(), ParameterDirection.Input);
+                OracleParameter p1 = command.Parameters.Add(":p_teacher_id", OracleDbType.NVarchar2,
+                    teacherId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                command.ExecuteNonQuery();
+                connection.Close();
+            }
+        }
+
+        public void UpdateGradeValue(Grades grade, int value)
+        {
+            // PROCEDURE UPDATE_VALUE(p_grade_id T_ID, p_value T_VALUE)
+            var commandText = "PKG_GRADES.UPDATE_VALUE";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // FUNCTION GET_BY_ID(p_id T_ID) RETURN SYS_REFCURSOR AS
+                OracleParameter p0 = command.Parameters.Add(":p_grade_id", OracleDbType.Int32,
+                    grade.GradeId.ToString(), ParameterDirection.Input);
+                OracleParameter p1 = command.Parameters.Add(":p_value", OracleDbType.NVarchar2,
+                    value.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                command.ExecuteNonQuery();
+                connection.Close();
+            }
+        }
     }
 }

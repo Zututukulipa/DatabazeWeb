@@ -5,19 +5,19 @@ namespace DatabaseAdapter.OracleLib.Models
     public class Grades
     {
 
-        public string GradeId { get; set; }
+        public int GradeId { get; set; }
 
 
-        public string StudentId { get; set; }
+        public int StudentId { get; set; }
 
 
-        public string TeacherId { get; set; }
+        public int TeacherId { get; set; }
 
 
-        public string CourseId { get; set; }
+        public int CourseId { get; set; }
 
 
-        public string Value { get; set; }
+        public int Value { get; set; }
 
 
         public string Description { get; set; }
