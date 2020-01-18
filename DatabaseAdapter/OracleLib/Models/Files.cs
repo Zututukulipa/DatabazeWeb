@@ -5,10 +5,10 @@ namespace DatabaseAdapter.OracleLib.Models
     public class Files
     {
 
-        public string FileId { get; set; }
+        public int FileId { get; set; }
 
 
-        public string UserId { get; set; }
+        public int UserId { get; set; }
 
 
         public string FileName { get; set; }
@@ -17,7 +17,7 @@ namespace DatabaseAdapter.OracleLib.Models
         public string FileType { get; set; }
 
 
-        public string FileData { get; set; }
+        public byte[] FileData { get; set; }
 
 
         public DateTime Created { get; set; }

@@ -213,6 +213,7 @@
         <e p="TimetableTest.cs" t="Include" />
         <e p="UserIntegrationTest.cs" t="Include" />
         <e p="UserTest.cs" t="Include" />
+        <e p="avatar_def.png" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">

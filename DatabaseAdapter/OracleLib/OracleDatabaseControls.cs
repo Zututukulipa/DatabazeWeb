@@ -2810,5 +2810,168 @@ namespace DatabaseAdapter.OracleLib
                 connection.Close();
             }
         }
+
+
+        public int InsertImage(Files image)
+        {
+            //FUNCTION NEW(p_user_id PKG_USER.T_ID, p_file_name T_NAME, p_file_type T_TYPE, p_file_data T_DATA) RETURN T_ID 
+            var commandText = "PKG_FILE.NEW";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter rval =
+                    command.Parameters.Add("T_ID", OracleDbType.Int32);
+                rval.Direction = ParameterDirection.ReturnValue;
+                OracleParameter p0 = command.Parameters.Add(":p_user_id", OracleDbType.Int32,
+                    image.UserId.ToString(), ParameterDirection.Input);
+                OracleParameter p1 =
+                    command.Parameters.Add(":p_file_name", OracleDbType.NVarchar2, image.FileName,
+                        ParameterDirection.Input);
+                OracleParameter p2 =
+                    command.Parameters.Add(":p_file_type", OracleDbType.NVarchar2, image.FileType,
+                        ParameterDirection.Input);
+                OracleParameter p3 =
+                    command.Parameters.Add(":p_file_data", OracleDbType.Blob, image.FileData,
+                        ParameterDirection.Input);
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+
+                // Construct an OracleDataReader from the REF CURSOR
+
+                int returnVal = int.Parse(rval.Value.ToString());
+                connection.Close();
+                return returnVal;
+            }
+        }
+
+        public void RemoveFile(int pictureId)
+        {
+            // PROCEDURE REMOVE(p_file_id T_ID)
+            var commandText = "PKG_FILE.REMOVE";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p0 = command.Parameters.Add(":p_grade_id", OracleDbType.Int32,
+                    pictureId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                command.ExecuteNonQuery();
+                connection.Close();
+            }
+        }
+
+        public List<Files> GetFileAll()
+        {
+            //FUNCTION GET_ALL RETURN SYS_REFCURSOR AS
+            //v_cursor SYS_REFCURSOR;
+            List<Files> files = new List<Files>();
+            var commandText = "FILES";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.TableDirect;
+                connection.Open();
+                // Execute the command
+                OracleDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Files file = new Files()
+                    {
+                        Created = reader.GetDateTime("CREATED"),
+                        UserId = reader.GetInt32("USER_ID"),
+                        FileName = reader.GetString("FILE_NAME"),
+                        FileType = reader.GetString("FILE_TYPE"),
+                        FileId = reader.GetInt32("FILE_ID"),
+                        FileData = reader.GetOracleBlob(4).Value
+                    };
+                    files.Add(file);
+                }
+
+                connection.Close();
+            }
+
+            return files;
+        }
+
+        public Files GetFile(int fileId)
+        {
+            //FUNCTION GET_BY_ID(p_file_id T_ID) RETURN SYS_REFCURSOR
+            Files file = null;
+            var commandText = "PKG_FILE.GET_BY_ID";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                OracleParameter rVal =
+                    command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+                OracleParameter p0 = command.Parameters.Add(":p_comment", OracleDbType.Int32,
+                    fileId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                OracleDataReader reader = ((OracleRefCursor) rVal.Value).GetDataReader();
+
+                if (reader.Read())
+                {
+                    file = new Files()
+                    {
+                        Created = reader.GetDateTime("CREATED"),
+                        FileData = reader.GetOracleBlob(5).Value,
+                        FileId = reader.GetInt32("FILE_ID"),
+                        FileType = reader.GetString("FILE_TYPE"),
+                        UserId = reader.GetInt32("USER_ID"),
+                        FileName = "RETURNED_FILE"
+                    };
+                }
+
+                connection.Close();
+            }
+
+            return file;
+        }
+
+        public List<Files> GetFile(User user)
+        {
+            //FUNCTION GET_BY_USER(p_user_id PKG_USER.T_ID) RETURN SYS_REFCURSOR
+            List<Files> files = new List<Files>();
+            var commandText = "PKG_FILE.GET_BY_USER";
+            using (OracleConnection connection = new OracleConnection(ConnectionString))
+            using (OracleCommand command = new OracleCommand(commandText, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                OracleParameter rVal =
+                    command.Parameters.Add("v_cursor", OracleDbType.RefCursor, ParameterDirection.ReturnValue);
+                OracleParameter p0 = command.Parameters.Add(":p_user_id", OracleDbType.Int32,
+                    user.UserId.ToString(), ParameterDirection.Input);
+
+                connection.Open();
+                // Execute the command
+                command.ExecuteNonQuery();
+                OracleDataReader reader = ((OracleRefCursor) rVal.Value).GetDataReader();
+
+                if (reader.Read())
+                {
+                    files.Add(new Files()
+                    {
+                        Created = reader.GetDateTime("CREATED"),
+                        FileData = reader.GetOracleBlob(5).Value,
+                        FileId = reader.GetInt32("FILE_ID"),
+                        FileType = reader.GetString("FILE_TYPE"),
+                        UserId = reader.GetInt32("USER_ID"),
+                        FileName = "RETURNED_FILE"
+                    });
+                }
+
+                connection.Close();
+            }
+
+            return files;
+        }
     }
 }
