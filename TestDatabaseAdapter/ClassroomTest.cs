@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using DatabaseAdapter.OracleLib;
 using DatabaseAdapter.OracleLib.Models;
 using Xunit;
@@ -7,24 +7,21 @@ namespace TestDatabaseAdapter
 {
     public class ClassroomTest
     {
-        private DatabaseAdapter.OracleLib.OracleDatabaseControls Controls { get; } = new OracleDatabaseControls("DATA SOURCE=localhost/XE;USER ID=schoold; password=heslo;");
+        private OracleDatabaseControls Controls { get; } = new OracleDatabaseControls("DATA SOURCE=localhost/XE;USER ID=schoold; password=heslo;");
 
         [Fact]
         public void NewClassroom()
         {
-            Classrooms classroom = new Classrooms("I808", 15);
-            classroom.ClassroomId = Controls.InsertClassroom(classroom);
-            var testReturn = Controls.GetClassroomById(classroom.ClassroomId);
-            Assert.False(classroom.ClassroomId != testReturn.ClassroomId ||
-                         classroom.Capacity != testReturn.Capacity ||
-                         classroom.Name != testReturn.Name);
-            
-            Controls.UpdateClassroomCapacity(classroom, 20);
-            Controls.UpdateClassroomName(classroom, "newClassroomName");
-            Controls.RemoveClassroom(classroom);
-            var classroomViaId = Controls.GetClassroomById(1);
-            List<Classrooms> rooms = Controls.GetClassroomByCapacity(20);
-            List<Classrooms> allrooms = Controls.GetClassroomAll();
+            var rnd = new Random();
+            for (var i = 0; i < 40; i++)
+            {
+                  var classroom = new Classrooms("I"+i, rnd.Next(5,30));
+                            classroom.ClassroomId = Controls.InsertClassroom(classroom);
+            }
+
+            var testId = rnd.Next(0, 40);
+            var testReturn = Controls.GetClassroomById(testId);
+            Assert.NotNull(testReturn);
         }
     }
 }

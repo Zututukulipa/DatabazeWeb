@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
+    <e p="$USER_HOME$/.cache/JetBrains/Rider2020.2/extResources" t="IncludeRecursive" />
+    <e p="$USER_HOME$/.cache/JetBrains/Rider2020.2/resharper-host/local/Transient/Rider/v202/SolutionCaches/_Databaze.1924795925.00" t="ExcludeRecursive" />
     <e p="$APPLICATION_CONFIG_DIR$/consoles/db" t="IncludeRecursive" />
     <e p="$APPLICATION_CONFIG_DIR$/extensions" t="IncludeRecursive" />
-    <e p="$USER_HOME$/.Rider2019.3/system/extResources" t="IncludeRecursive" />
-    <e p="$USER_HOME$/.Rider2019.3/system/resharper-host/local/Transient/ReSharperHost/v193/SolutionCaches/_Databaze.1924795925.00" t="ExcludeRecursive" />
+    <e p="$USER_HOME$/.nuget/packages/blazorise/0.9.1.2/contentFiles/any/netstandard2.1/compilerconfig.json" t="Include" />
     <e p="$USER_HOME$/.nuget/packages/microsoft.net.test.sdk/16.2.0/build/netcoreapp1.0" t="Include">
       <e p="Microsoft.NET.Test.Sdk.Program.cs" t="Include" />
     </e>
+    <e p="$USER_HOME$/.nuget/packages/radzen.blazor/2.11.13/contentFiles/any/netstandard2.1/Properties/launchSettings.json" t="Include" />
     <e p="$USER_HOME$/.nuget/packages/xunit.runner.visualstudio/2.4.0/build/netcoreapp1.0/xunit.runner.reporters.netcoreapp10.dll" t="Include" />
     <e p="$USER_HOME$/.nuget/packages/xunit.runner.visualstudio/2.4.0/build/netcoreapp1.0/xunit.runner.utility.netcoreapp10.dll" t="Include" />
     <e p="$USER_HOME$/.nuget/packages/xunit.runner.visualstudio/2.4.0/build/netcoreapp1.0/xunit.runner.visualstudio.dotnetcore.testadapter.dll" t="Include" />
@@ -39,7 +41,7 @@
           </e>
           <e p="OracleDatabaseControls.cs" t="Include" />
         </e>
-        <e p="SQLCripts" t="Include">
+        <e p="SQLScripts" t="Include">
           <e p="IDAS2" t="Include">
             <e p="01_tables.sql" t="Include" />
             <e p="02_sequences.sql" t="Include" />
@@ -84,6 +86,7 @@
         <e p="NewFolder" t="Include" />
         <e p="Pages" t="Include">
           <e p="Error.razor" t="Include" />
+          <e p="Grades.razor" t="Include" />
           <e p="Groups.razor" t="Include" />
           <e p="Index.razor" t="Include" />
           <e p="Login.razor" t="Include" />
@@ -95,15 +98,24 @@
           <e p="launchSettings.json" t="Include" />
         </e>
         <e p="Services" t="Include">
+          <e p="ChatState.cs" t="Include" />
           <e p="UserService.cs" t="Include" />
         </e>
         <e p="Shared" t="Include">
+          <e p="AddGroupPopUp.razor" t="Include" />
+          <e p="DisplayGrades.razor" t="Include" />
+          <e p="DisplaySchedule.razor" t="Include" />
+          <e p="EditPost.razor" t="Include" />
+          <e p="GroupTableContent.razor" t="Include" />
           <e p="LoginPage.razor" t="Include" />
           <e p="MainLayout.razor" t="Include" />
           <e p="MessagesChatWindow.razor" t="Include" />
           <e p="MessagesContactSidebar.razor" t="Include" />
           <e p="NavMenu.razor" t="Include" />
           <e p="PostComments.razor" t="Include" />
+          <e p="SearchBar.razor" t="Include" />
+          <e p="StudentTableRow.razor" t="Include" />
+          <e p="UserInfo.cs" t="Include" />
           <e p="WallHeader.razor" t="Include" />
           <e p="WallPosts.razor" t="Include" />
         </e>
@@ -117,27 +129,6 @@
             <e p="netcoreapp3.0" t="Include">
               <e p="Database.AssemblyInfo.cs" t="Include" />
               <e p="Database.RazorAssemblyInfo.cs" t="Include" />
-              <e p="RazorDeclaration" t="Include">
-                <e p="App.razor.g.cs" t="Include" />
-                <e p="Pages" t="Include">
-                  <e p="Error.razor.g.cs" t="Include" />
-                  <e p="Groups.razor.g.cs" t="Include" />
-                  <e p="Index.razor.g.cs" t="Include" />
-                  <e p="Login.razor.g.cs" t="Include" />
-                  <e p="Messages.razor.g.cs" t="Include" />
-                </e>
-                <e p="Shared" t="Include">
-                  <e p="LoginPage.razor.g.cs" t="Include" />
-                  <e p="MainLayout.razor.g.cs" t="Include" />
-                  <e p="MessagesChatWindow.razor.g.cs" t="Include" />
-                  <e p="MessagesContactSidebar.razor.g.cs" t="Include" />
-                  <e p="NavMenu.razor.g.cs" t="Include" />
-                  <e p="PostComments.razor.g.cs" t="Include" />
-                  <e p="WallHeader.razor.g.cs" t="Include" />
-                  <e p="WallPosts.razor.g.cs" t="Include" />
-                </e>
-                <e p="_Imports.razor.g.cs" t="Include" />
-              </e>
             </e>
           </e>
         </e>

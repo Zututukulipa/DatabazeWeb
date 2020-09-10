@@ -1,17 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Database.Services;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Database.Data;
-using Database.Services;
-using Microsoft.Extensions.Options;
+using Blazorise;
+using Blazorise.Bootstrap;
+using Blazorise.Icons.FontAwesome;
 
 namespace Database
 {
@@ -30,7 +26,13 @@ namespace Database
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<UserService>();
+            services.AddBlazorise(options =>
+                {
+                    options.ChangeTextOnKeyPress = true; // optional
+                })
+                .AddBootstrapProviders().AddFontAwesomeIcons();
+            services.AddScoped<UserService>();
+            services.AddScoped<ChatState>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,6 +53,8 @@ namespace Database
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.ApplicationServices.UseBootstrapProviders().UseFontAwesomeIcons();
 
             app.UseEndpoints(endpoints =>
             {

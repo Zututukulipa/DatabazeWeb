@@ -1,31 +1,54 @@
-﻿@using Database.Data
+﻿@page "/"
+@page "/user/{userid}"
 @using Database.Services
 @using DatabaseAdapter.OracleLib.Models
-@using Databaze_API.Controllers
-@page "/"
-@if (UserController.ActiveUser != null)
+
+@if (SelectedUser != null)
 {
-    <WallHeader/>
-    <hr/>
+    <WallHeader SelectedUser="@SelectedUser"/>
+    <Tabs SelectedTab="@selectedTab" SelectedTabChanged="@OnSelectedTabChanged">
+        <Items>
+            <Tab Name="home">Home</Tab>
+            <Tab Name="grades">Grades</Tab>
+            <Tab Name="groups">Groups</Tab>
+            <Tab Name="schedule">Schedule</Tab>
+        </Items>
+        <Content>
+            <TabPanel Name="home">
+                <select class="form-control" @bind=SelectedGroupId>
+                    <option value="0" selected>ALL</option>
+                    @foreach (var group in _groups)
+                    {
+                        <option value="@group.GroupId"> @group.Name </option>
+                    }
+                </select>
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <EditForm Model="@_addedPostString" OnValidSubmit="@AddTask">
+                                <DataAnnotationsValidator/>
+                                <InputTextArea id="name" placeholder="Write new post..." @bind-Value="_addedPostString" style="width: 100%"/>
+                                <button type="submit" class="btn-block btn-primary">Add Post</button>
+                            </EditForm>
+                        </div>
+                    </div>
+                </div>
+                <br/>
 
-    <div class="container">
-        <div class="row">
+                <WallPosts @ref="_wallComponentControl" Posts="_posts" RemovePostChanged="RemovePost"/>
+            </TabPanel>
+            <TabPanel Name="grades">
+                <DisplayGrades></DisplayGrades>
+            </TabPanel>
+            <TabPanel Name="groups">
+                <Groups/>
+            </TabPanel>
+            <TabPanel Name="schedule">
+              <DisplaySchedule HoraryStart="8" HoraryEnd="20"></DisplaySchedule>
 
-            <div class="col">
-                <EditForm Model="@addedPostString" OnValidSubmit="@AddTask">
-                    <DataAnnotationsValidator/>
-                    <ValidationSummary/>
-                    <InputTextArea id="name" placeholder="Write new post..." @bind-Value="addedPostString" style="width: 100%"/>
-                    <button type="submit" class="btn-block btn-primary">Add Post</button>
-                </EditForm>
-            </div>
-        </div>
-    </div>
-    <br/>
-
-    <WallPosts Posts="Posts"
-               @ref="WallComponentControl"
-               RemovePostChanged="RemovePost"/>
+            </TabPanel>
+        </Content>
+    </Tabs>
 }
 else
 {
@@ -33,51 +56,97 @@ else
 }
 
 @code {
-    // This will hold a reference to the ToDoComponent
-    private WallPosts WallComponentControl;
-    
+
+    [Parameter]
+    public string userId { get; set; }
+
+    private WallPosts _wallComponentControl;
+
+
+    private int _selectedGroupId;
+
+    private int SelectedGroupId
+    {
+        get => _selectedGroupId;
+        set
+        {
+            _selectedGroupId = value;
+            RefreshGroupMessages();
+        }
+    }
+
+    string selectedTab = "profile";
+
+
+    private void OnSelectedTabChanged(string name)
+    {
+        selectedTab = name;
+    }
+
+
     private void RemovePost(WallPost paramWallItem)
     {
     // Remove the Task from the collection
-        Posts.Remove(paramWallItem);
+        ActiveUserService.UserController.RemoveWallPost(paramWallItem);
+        _wallComponentControl.RemovePostFromList(paramWallItem);
     }
 
+
     // Collection to hold all the Posts
-    private List<WallPost> Posts = new List<WallPost>();
+    private List<WallPost> _posts = new List<WallPost>();
     // This method will run when the control is loade
 
     // Property to hold the description of a new Task
     // The textbox is bound to this property
-    private string addedPostString = "";
+    private string _addedPostString = string.Empty;
+    private List<Group> _groups = new List<Group>();
 
     [Inject]
-    UserService activeUserService { get; set; }
+    UserService ActiveUserService { get; set; }
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        Posts = DataGen.getDefault(10);
+        if (userId != string.Empty && Int32.TryParse(userId, out var uid) && uid > 0)
+        {
+            SelectedUser = ActiveUserService.UserController.GetUserById(uid);
+        }
+        else
+        {
+            SelectedUser = UserService.ActiveUser;
+        }
+        if (SelectedUser != null)
+        {
+            _posts = ActiveUserService.UserController.GetWallPosts(SelectedUser);
+            _groups = ActiveUserService.UserController.GetUserGroups(SelectedUser);
+        }
+        
     }
-    
+
+    public User SelectedUser { get; set; }
+
     private void AddTask()
     {
-        if (!string.IsNullOrWhiteSpace(addedPostString))
+        if (!string.IsNullOrWhiteSpace(_addedPostString))
         {
-    // Create a new Task
-    // using the current value of the
-    // addedPost property
-            WallPost addedPost = new WallPost(activeUserService.ActiveUser);
-            addedPost.MessageContent = addedPostString;
-            addedPost.Created = DateTime.Now;
-            addedPost.Owner = activeUserService.ActiveUser;
-    // Add the new Task to the collection
-    // by calling a method on the child component
-            WallComponentControl.AddNewPost(addedPost);
-    // Clear the addedPost value
-    // so the text box will now be empty
-            addedPostString = string.Empty;
+            var addedPost = new WallPost(SelectedUser)
+            {
+                MessageContent = _addedPostString,
+                Created = DateTime.Now,
+                Owner = SelectedUser,
+                GroupId = SelectedGroupId
+            };
+            _wallComponentControl.AddNewPost(addedPost);
+            ActiveUserService.UserController.AddWallPost(addedPost);
+            _addedPostString = string.Empty;
         }
     }
-    
+
+    private void RefreshGroupMessages()
+    {
+        _wallComponentControl.FilterPosts(SelectedGroupId);
+    }
+
+   
 
 }

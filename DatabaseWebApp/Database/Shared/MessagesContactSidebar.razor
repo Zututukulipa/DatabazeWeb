@@ -1,31 +1,45 @@
-﻿@using Database.Data
+﻿    @using Database.Services
 @using DatabaseAdapter.OracleLib.Models
+@inject ChatState ChatState
 <div class="col-sm-4 pre-scrollable" style="min-height: 870px">
     <table class="table overflow-auto">
         <thead>Conversations</thead>
         <tbody>
-        @foreach (KeyValuePair<User, List<PrivateMessages>> entry in _conversations)
+        @foreach (var userMessages in Conversations)
         {
-            <tr class="list-group-item-action">
-                <td>
-                    @* TODO finish changing picture *@
-                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="User name" class="mr-3 rounded-circle align-self-center" width="45px" style="float:right">
-                </td>
-                <td>
-                    <ul class="list-group">
-                        <li style="list-style-type: none;">@entry.Key.FirstName @entry.Key.LastName</li>
-                        @if (entry.Value.Count > 15)
-                        {
-                            @entry.Value[0].Content.Substring(0, 15).Insert(14,"...")
-                        }
-                        else 
-                        {
-                            @entry.Value[0].Content
-                        }
-                        <li class="text-muted h7 mb-3" style="list-style-type: none;">@entry.Value[0].Created.ToString("MM/dd/yyyy h:mm tt")</li>
-                    </ul>
-                </td>
-            </tr>
+            PrivateMessages lastMessage;
+            try
+            {
+                lastMessage = Neco.Last(x => (x.FromUser.Equals(userMessages.Key) && x.ToUser.Equals(UserService.ActiveUser)) || (x.FromUser.Equals(UserService.ActiveUser) && x.ToUser.Equals(userMessages.Key)));
+            }
+            catch(Exception e)
+            {
+                lastMessage = new PrivateMessages{Content = "", FromUser = userMessages.Key, ToUser = UserService.ActiveUser, Created = DateTime.Now};
+            }
+            if (!(lastMessage.FromUser.Equals(UserService.ActiveUser) && lastMessage.ToUser.Equals(UserService.ActiveUser)))
+            {
+                <tr class="list-group-item-action" @onclick=@(() => ChatSelection(userMessages.Key))>
+                    <td>
+                        @* TODO finish changing picture *@
+                        <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="User name" class="mr-3 rounded-circle align-self-center" width="45px" style="float:right">
+                    </td>
+                    <td>
+                        <ul class="list-group">
+                            <li style="list-style-type: none;">@lastMessage.FromUser.FirstName @lastMessage.FromUser.LastName</li>
+                            @if (lastMessage.Content.Length > 15)
+                            {
+                                @lastMessage.Content.Substring(0, 15).Insert(15, "...")
+                            }
+                            else
+                            {
+                                @lastMessage.Content
+                            }
+                            <li class="text-muted h7 mb-3" style="list-style-type: none;">@lastMessage.Created.ToString("MM/dd/yyyy h:mm tt")</li>
+
+                        </ul>
+                    </td>
+                </tr>
+            }
         }
         </tbody>
     </table>
@@ -33,22 +47,24 @@
 
 @code
 {
-    Dictionary<User, List<PrivateMessages>> _conversations = new Dictionary<User, List<PrivateMessages>>();
+    [Parameter]
+    public ILookup<User, PrivateMessages> Conversations { get; set; }
+
+    public PrivateMessages[] Neco { get; set; }
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        Random rnd = new Random();
-        List<User> us = DataGen.getDefaultUser(15);
-        List<PrivateMessages> messages = new List<PrivateMessages>();
-        for (int i = 0; i < 5; i++)
-        {
-            messages.Add(new PrivateMessages(us[rnd.Next(5)], "RANDOM TEXT"));
-        }
-        foreach (var user in us)
-        {
-            _conversations.Add(user, messages);
-        }
+        Neco = Conversations.SelectMany(_ => _).ToArray();
+
     }
 
+    void ChatSelection(User newlySelectedUser)
+    {
+        ChatState.SelectedUser = newlySelectedUser;
+        ChatState.NotifyStateChanged();
+
+        
+    }
 }
+

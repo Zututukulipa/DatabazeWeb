@@ -1,5 +1,6 @@
-﻿@using DatabaseAdapter.OracleLib.Models
-@foreach (var post in Posts)
+﻿@using Database.Services
+@using DatabaseAdapter.OracleLib.Models
+@foreach (var post in _activePosts)
 {
     <div class="card">
         <div class="card-header">
@@ -14,9 +15,19 @@
                         <div class="text-muted h7 mb-3">
                             <i class="fa fa-clock-o"></i>@post.Created</div>
                     </div>
-                    <button type="button" class="btn btn-link" @onclick="(() => RemovePost(post))">
-                        [Delete]
-                    </button>
+                    @if (UserService.ActiveUser.UserId == post.Owner.UserId)
+                    {
+                        <button type="button" class="btn btn-link" @onclick="(() => RemovePost(post))">
+                            [Delete]
+                        </button>
+                        @if (!_editing)
+                        {
+                            <button type="button" class="btn btn-link" @onclick="() => EditSet()">
+                                [Edit]
+                            </button>
+                        }
+                        
+                    }
                 </div>
                 <div>
                 </div>
@@ -24,9 +35,19 @@
         </div>
         <div class="card-body">
             <p class="card-text">
-                @post.MessageContent
+                @if (!_editing)
+                {
+                    @post.MessageContent
+                }
+                else
+                {
+                   <EditPost Post="@post" EditPostChanged="EditPost"/>
+                    
+                }
+    
             </p>
         </div>
+
     <PostComments Post="post"/>
 
     </div>
@@ -36,26 +57,43 @@
 
 @code
 {
-
+    private bool _editing;
     // Declare the ThemeColor CascadingParameter
     // from the ancestor control as ThemeColorParameter 
-
+    private void EditSet()
+    {
+        if (_editing)
+            _editing = false;
+        else
+            _editing = true;
+    }
     // Collection to hold the Posts
     // passed in by the parent component
     [Parameter]
     public List<WallPost> Posts { get; set; }
+    private List<WallPost> _activePosts = new List<WallPost>();
 
     // RemoveTaskChanged is an EventCallback that will
     // notify the parent component when an item is to be removed
     // passing the item to be removed
     [Parameter]
     public EventCallback<WallPost> RemovePostChanged { get; set; }
-
+    
+    [Inject]
+    UserService ActiveUserService { get; set; }
+    
     private async Task RemovePost(WallPost paramPostItem)
     {
     // Notify parent component to
     // Remove the Task from the collection
         await RemovePostChanged.InvokeAsync(paramPostItem);
+    }
+    
+    private void EditPost(WallPost paramPostItem)
+    {
+        _editing = false;
+        ActiveUserService.UserController.EditWallPost(paramPostItem);
+        _activePosts = Posts;
     }
 
     // This method will be called directly by the parent 
@@ -64,6 +102,24 @@
     {
     // Add the new Task to the collection
         Posts.Insert(0,paramPostItem);
+        _activePosts.Insert(0, paramPostItem);
+
     }
 
+    public void RemovePostFromList(WallPost paramWallItem)
+    {
+       Posts.Remove(paramWallItem);
+        _activePosts.Remove(paramWallItem);
+    }
+
+    public void FilterPosts(int groupId)
+    {
+        _activePosts = groupId > 0 ? Posts.FindAll(e => e.GroupId == groupId) : Posts;
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _activePosts = Posts;
+    }
 }

@@ -1,23 +1,62 @@
-﻿@using DatabaseAdapter.OracleLib.Models
-
-@functions
+﻿@using Database.Services
+@using DatabaseAdapter.OracleLib.Models
+@using Databaze_API.Controllers
+@code
 {
-    private User activeUser = Databaze_API.Controllers.UserController.ActiveUser;
+    [Inject]
+    UserService ActiveUserService { get; set; }
+
+    [Parameter]
+    public User SelectedUser { get; set; }
+
+    private bool _editing;
+
+    private void HandleValidSubmit()
+    {
+        _editing = false;
+        ActiveUserService.UserController.EditUser(SelectedUser);
+    }
 }
 
 <div class="media">
     <img class="mr-3 rounded-circle" src="/img/avatar_def.png" alt="Generic placeholder image">
     <div class="media-body">
-        <h5 class="mt-0">@activeUser.FirstName @activeUser.MiddleName @activeUser.LastName</h5>
-        <p class="p-1">@activeUser.Bio</p>
-        <h5 class="mt-0">Groups:</h5> <p class="p-0">
-            @foreach (var group in activeUser.Groups)
+        @if (!_editing)
+        {
+            <h5 class="mt-0">@SelectedUser.FirstName @SelectedUser.MiddleName @SelectedUser.LastName</h5>
+            <p class="p-1">@SelectedUser.Bio</p>
+        }
+        else
+        {
+            <EditForm Model="@SelectedUser" OnValidSubmit="HandleValidSubmit">
+                <h5>Personal</h5>
+                <p>
+                    <label for="firstName">First Name: </label>
+                    <InputText id="firstName" @bind-Value="SelectedUser.FirstName"/>
+                </p>
+                <p>
+                    <label for="middleName">Middle Name: </label>
+                    <InputText id="middleName" @bind-Value="SelectedUser.MiddleName"/>
+                </p>
+                <p>
+                <label for="lastName">Last Name: </label>
+                <InputText id="lastName" @bind-Value="SelectedUser.LastName"/>
+                </p>
+                <button type="submit">Save</button>
+            </EditForm>
+
+        }
+        <p class="p-0">
+            <h5 class="mt-0">Groups:</h5>
+            @foreach (var group in SelectedUser.Groups)
             {
-                @group.ToString();
+                @group.ToString()
             }
         </p>
-           <button class="btn-primary btn-light">Edit</button>
-
+        @if (!_editing)
+        {
+            <button class="btn-primary btn-light" @onclick="() => _editing = true">Edit</button>
+        }
     </div>
 </div>
 

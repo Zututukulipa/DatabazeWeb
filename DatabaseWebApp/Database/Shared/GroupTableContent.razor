@@ -1,0 +1,50 @@
+﻿@using Database.Services
+@using DatabaseAdapter.OracleLib.Models
+<table class="table table-hover">
+    <thead class="thead-dark">
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">First</th>
+        <th scope="col">Middle</th>
+        <th scope="col">Last</th>
+        <th scope="col">Controls</th>
+    </tr>
+    </thead>
+    <tbody>    
+@if (GroupId > 0)
+{
+    Students = ActiveUserService.UserController.GetGroupUsers(GroupId);
+    @for (var i = 0; i < Students.Count; i++)
+    {
+        <StudentTableRow Student=@Students[i] RemoveStudentChanged="RemoveStudent"/>
+    }
+}
+    </tbody>
+</table>
+
+
+@code
+{
+    [Parameter]
+    public int GroupId { get; set; }
+    [Inject]
+    UserService ActiveUserService { get; set; }
+    
+
+    public List<Students> Students { get; set; }
+
+    private void RemoveStudent(Students student)
+    {
+        if (Students.Remove(student))
+            ActiveUserService.UserController.RemoveStudentFromGroup(student, GroupId);
+    }
+
+    public void Refresh()
+    {
+        StateHasChanged();
+    }
+
+
+
+
+}

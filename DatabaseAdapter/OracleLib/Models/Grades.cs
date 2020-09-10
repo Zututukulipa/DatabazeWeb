@@ -7,6 +7,8 @@ namespace DatabaseAdapter.OracleLib.Models
 
         public int GradeId { get; set; }
 
+        public DateTime Created { get; set; }
+
 
         public int StudentId { get; set; }
 
@@ -21,9 +23,5 @@ namespace DatabaseAdapter.OracleLib.Models
 
 
         public string Description { get; set; }
-
-
-        public DateTime Created { get; set; }
-
     }
 }

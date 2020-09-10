@@ -22,13 +22,6 @@ namespace DatabaseAdapter.OracleLib.Models
 
         public DateTime Created { get; set; }
 
-        public WallPost GetPostById(int id)
-        {
-
-
-            return null;
-        }
-
         public WallPost(User owner)
         {
             Created = DateTime.Now;

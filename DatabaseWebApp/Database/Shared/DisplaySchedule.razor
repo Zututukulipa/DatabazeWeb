@@ -1,0 +1,101 @@
+@using DatabaseAdapter.OracleLib.Models
+@using Databaze_API.Controllers
+@using Database.Services
+@inject UserController ActiveUserController;
+<Table Bordered="true">
+    <TableHeader>
+        <TableRow>
+            <TableHeaderCell Style="width: 75px">Day</TableHeaderCell>
+            @foreach (var hour in _helper)
+            {
+                <TableHeaderCell>@hour</TableHeaderCell>
+            }
+        </TableRow>
+    </TableHeader>
+    <TableBody>
+        @foreach (var day in days)
+        {
+            <TableRow>
+                <TableRowCell>
+                    @day.ToString()
+                </TableRowCell>
+                @for (int i = HoraryStart; i <= HoraryEnd; i++)
+                {
+                    <TableRowCell>
+                        @foreach (var scheduledClass in 
+                            SchedulerData.Where(scheduledClass =>
+                                scheduledClass.Begin.Hour - i <= 0 &&
+                                scheduledClass.End.Hour - i > 0 &&
+                                scheduledClass.Begin.DayOfWeek == day))
+                        {
+                            <TableRow>
+                                <TableRowCell Color="GetRandomBg(scheduledClass.Classroom.ClassroomId)">
+                                    @scheduledClass.Classroom.Name [@scheduledClass.Group.Name]
+                                </TableRowCell>
+                            </TableRow>
+                        }
+                    </TableRowCell>
+                }
+
+            </TableRow>
+        }
+    </TableBody>
+</Table>
+
+@code {
+
+    [Parameter]
+    public int HoraryStart { get; set; } = 8;
+
+    [Parameter]
+    public int HoraryEnd { get; set; } = 20;
+
+    public List<Timetables> SchedulerData { get; set; }
+
+    private List<DayOfWeek> days;
+
+    private List<int> _helper;
+
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        SchedulerData = ActiveUserController.GetUserSchedule(UserService.ActiveUser);
+        Random r = new Random();
+        for (int i = 0; i < 10; i++)
+        {
+            int min = r.Next(1, 4);
+            var startDate = DateTime.Now.AddDays(r.Next(0, 7));
+            SchedulerData.Add(new Timetables()
+            {
+                Begin = startDate, End = DateTime.Now.AddHours(min),
+                Classroom = new Classrooms() {Capacity = i, Name = $"R{i}", ClassroomId = i},
+                Group = new Group() {Name = $"G{i}", ActualCapacity = i, MaxCapacity = i, GroupId = i, TeacherId = i}
+            });
+        }
+        days = new List<DayOfWeek>();
+        for (int i = 1; i <= 5; i++)
+        {
+            days.Add((DayOfWeek) i);
+        }
+        _helper = new List<int>();
+        for (int i = HoraryStart; i <= HoraryEnd; i++)
+        {
+            _helper.Add(i);
+        }
+    }
+
+    private Color GetRandomBg(int id)
+    {
+        var bg = id % 5;
+        return (Color) bg;
+    }
+
+    private int GetDuration(Timetables schedule)
+    {
+        if (schedule.End.Hour - schedule.Begin.Hour > 0)
+            return (schedule.End.Hour - schedule.Begin.Hour);
+        return 0;
+    }
+
+}

@@ -19,9 +19,10 @@ namespace DatabaseAdapter.OracleLib.Models
 
         public DateTime Created { get; set; }
 
-        public PrivateMessages(User user, string content)
+        public PrivateMessages(User sender, User addressedUser, string content)
         {
-            ToUser = user;
+            FromUser = sender;
+            ToUser = addressedUser;
             Content = content;
             Created = DateTime.Now;
         
@@ -38,5 +39,7 @@ namespace DatabaseAdapter.OracleLib.Models
         public PrivateMessages()
         {
         }
+        
+        
     }
 }

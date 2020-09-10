@@ -1,0 +1,99 @@
+﻿@using Database.Services
+@using DatabaseAdapter.OracleLib.Models
+<tr>
+        <th scope="row">@Student.StudentId</th>
+        <td>@Student.FirstName</td>
+        @if (!string.IsNullOrEmpty(Student.MiddleName))
+        {
+            <td>@Student.MiddleName</td>
+        }
+        else
+        {
+            <td>@string.Empty</td>
+        }
+        <td>@Student.LastName</td>
+        <td>
+            <button type="button" class="btn btn-primary" @onclick="() => SetEdit()">Edit</button>
+            <button type="button" class="btn btn-danger" @onclick="() => RemoveRow(Student)">Delete</button>
+        </td>
+
+    </tr>
+@if (_editing)
+{
+        <!-- This is the popup to create or edit a forecast -->
+        <div class="modal" tabindex="-1" style="display:block" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Edit Forecast</h3>
+                        <!-- Button to close the popup -->
+                        <button type="button" class="close"
+                                @onclick="SetEdit">
+                            <span aria-hidden="true">X</span>
+                        </button>
+                    </div>
+                    <!-- Edit form for the current forecast -->
+                    <div class="modal-body">
+                        <input class="form-control" type="text"
+                               placeholder="First Name"
+                               @bind="Student.FirstName" />
+                        <input class="form-control" type="text"
+                               placeholder="Middle Name"
+                               @bind="Student.MiddleName" />
+                        <input class="form-control" type="text"
+                               placeholder="Last Name"
+                               @bind="Student.LastName" />
+                        <br />
+                        <!-- Button to save the forecast -->
+                        <button class="btn btn-primary"
+                                @onclick="HandleValidSubmit">
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+}
+
+
+@code
+{
+    [Inject]
+    UserService ActiveUserService { get; set; }
+
+    [Parameter]
+    public Students Student { get; set; }
+
+    private bool _editing;
+
+    private void SetEdit()
+    {
+        if (_editing)
+            _editing = false;
+        else
+            _editing = true;
+    }
+
+    private void HandleValidSubmit()
+    {
+        EditRow(Student);
+    }
+
+    private void EditRow(Students student)
+    {
+        ActiveUserService.UserController.EditUser(student);
+        SetEdit();
+    }
+
+    [Parameter]
+    public EventCallback<Students> RemoveStudentChanged { get; set; }
+
+    private async Task RemoveRow(Students student)
+    {
+    // Notify parent component to
+    // Remove the Task from the collection
+        await RemoveStudentChanged.InvokeAsync(student);
+    }
+
+}

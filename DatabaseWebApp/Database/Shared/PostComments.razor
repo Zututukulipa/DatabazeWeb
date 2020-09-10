@@ -1,8 +1,6 @@
 ﻿@using System.ComponentModel.DataAnnotations
+@using Database.Services
 @using DatabaseAdapter.OracleLib.Models
-
-
-
 @foreach (var response in Post.Comments)
 {
     <div class="card-header w-75">
@@ -17,7 +15,7 @@
                     <div class="text-muted h7 mb-3">
                         <i class="fa fa-clock-o"></i>@response.Created</div>
                 </div>
-                @if (response.ContentOwner.UserId == activeUser.UserId)
+                @if (response.ContentOwner.UserId == _activeUser.UserId)
                 {
                     <button type="button" class="btn btn-link" @onclick="(() => RemoveComment(response))">
                         [Delete]
@@ -33,6 +31,7 @@
         <p class="card-text">
             @response.Content
         </p>
+
     </div>
 }
 
@@ -40,10 +39,9 @@
     <div class="row">
 
         <div class="col">
-            <EditForm Model="@newComment" OnValidSubmit="@AddNewComment">
+            <EditForm Model="@_newComment" OnValidSubmit="@AddNewComment">
                 <DataAnnotationsValidator/>
-                <ValidationSummary/>
-                <InputTextArea id="name" placeholder="Write Your Comment..." @bind-Value="newComment" style="width: 100%"/>
+                <InputTextArea id="name" placeholder="Write Your Comment..." @bind-Value="_newComment" style="width: 100%"/>
                 <button type="submit" class="btn-block btn-secondary w-50 align-content-center">Add Comment</button>
             </EditForm>
         </div>
@@ -53,20 +51,28 @@
 
 @code
 {
-    private User activeUser = Databaze_API.Controllers.UserController.ActiveUser;
+
+    private User _activeUser = UserService.ActiveUser;
 
     [Parameter]
     public WallPost Post { get; set; }
 
+
     [Parameter]
     public EventCallback<WallPost> RemovePostChanged { get; set; }
 
-    [Required] private string newComment = "";
-
-    private async Task RemoveComment(Comments paramPostItem)
+    [Inject]
+    UserService ActiveUserService { get; set; }
+    
+    [Required] 
+    private string _newComment = "";
+    
+    
+    private void RemoveComment(Comments paramPostItem)
     {
     // Notify parent component to
     // Remove the Task from the collection
+        ActiveUserService.UserController.RemoveComment(paramPostItem);
         Post.Comments.Remove(paramPostItem);
     }
 
@@ -75,15 +81,19 @@
     public void AddNewComment()
     {
     // Add the new Task to the collection
-        Comments addedComment = new Comments();
-        addedComment.Content = newComment;
-        addedComment.ContentOwner = activeUser;
+        var addedComment = new Comments();
+        addedComment.Content = _newComment;
         addedComment.Created = DateTime.Now;
-
+        addedComment.MessageId = Post.GmsgId;
+        addedComment.ContentOwner = UserService.ActiveUser;
+        addedComment.UserId = addedComment.ContentOwner.UserId;
+        addedComment.CommentId = ActiveUserService.UserController.AddComment(addedComment);
         Post.Comments.Add(addedComment);
-        newComment = String.Empty;
+        _newComment = String.Empty;
         
     }
+
+  
 
 
 }

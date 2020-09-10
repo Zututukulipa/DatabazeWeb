@@ -28,8 +28,8 @@ namespace TestDatabaseAdapter
             _controls.UpdateCourseShortcut(courses[0]);
             _controls.UpdateCourseDescription(courses[0]);
             
-            List<Courses> allCourses = _controls.GetCourseAll();
-            Courses crs = _controls.GetCourseById(courses[0].CourseId);
+            var allCourses = _controls.GetCourseAll();
+            var crs = _controls.GetCourseById(courses[0].CourseId);
             Assert.True(crs.Description == "New [UPDATED] Description" && crs.FullName ==  "New Updated FullName" && crs.ShortName == "NUFSH" && allCourses.Count > 0);
 
         }
@@ -37,21 +37,21 @@ namespace TestDatabaseAdapter
         [Fact]
         public void GetAll()
         {
-            List<Courses> courses = _controls.GetCourseAll();
+            var courses = _controls.GetCourseAll();
             Assert.True(courses.Count > 0);
         }
 
         [Fact]
         public void GetById()
         {
-            Courses course = _controls.GetCourseById(1000);
+            var course = _controls.GetCourseById(1000);
             Assert.NotNull(course);
         }
         
         protected List<Courses> LoadCoursesFromCsv(string path)
         {
-            List<Courses> courses = new List<Courses>();
-            using (TextFieldParser parser = new TextFieldParser(path))
+            var courses = new List<Courses>();
+            using (var parser = new TextFieldParser(path))
             {
                 parser.TextFieldType = FieldType.Delimited;
                 parser.SetDelimiters(";");
@@ -59,15 +59,15 @@ namespace TestDatabaseAdapter
                 while (!parser.EndOfData) 
                 {
                     //Processing row
-                    string[] fields = parser.ReadFields();
-                    courses.Add(parseCourses(fields));
+                    var fields = parser.ReadFields();
+                    courses.Add(ParseCourses(fields));
                 }
             }
 
             return courses;
         }
 
-        private Courses parseCourses(string[] fields)
+        private Courses ParseCourses(IList<string> fields)
         {
             if (fields[29].Length > 250)
             {

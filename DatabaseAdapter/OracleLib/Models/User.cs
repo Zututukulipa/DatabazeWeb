@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 using DatabaseAdapter.OracleLib.Enums;
 
 namespace DatabaseAdapter.OracleLib.Models
@@ -28,13 +29,13 @@ namespace DatabaseAdapter.OracleLib.Models
         public string Email { get; set; }
 
         public Roles Role { get; set; }
-        public int StatusId { get; set; }
 
 
         public bool Admin { get; set; }
 
-        public List<Group> Groups { get; set; }
+        public List<Group> Groups { get; private set; }
         public string Bio { get; set; }
+        public int StatusId { get; set; }
 
         public Dictionary<User, List<PrivateMessages>> UserConversations { get; set; }
 
@@ -46,7 +47,6 @@ namespace DatabaseAdapter.OracleLib.Models
             LastName = "Mockup";
             Email = "RonaldBro@schoold.gg";
             Groups = new List<Group>();
-            StatusId = 1;
             Bio =
                 "Generic automatically generated bio, trying to emulate a little string that might be possible to observe in responsive mode :]";
             UserConversations = new Dictionary<User, List<PrivateMessages>>();
@@ -62,7 +62,6 @@ namespace DatabaseAdapter.OracleLib.Models
             LastName = lastName;
             Email = email;
             Groups = new List<Group>();
-            StatusId = 1;
             Bio = bio;
             UserConversations = new Dictionary<User, List<PrivateMessages>>();
 
@@ -79,7 +78,7 @@ namespace DatabaseAdapter.OracleLib.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((User) obj);
         }
 
@@ -87,13 +86,18 @@ namespace DatabaseAdapter.OracleLib.Models
         {
             unchecked
             {
-                var hashCode = (Username != null ? Username.GetHashCode() : 0);
+                var hashCode = Username != null ? Username.GetHashCode() : 0;
                 hashCode = (hashCode * 397) ^ (FirstName != null ? FirstName.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (MiddleName != null ? MiddleName.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (LastName != null ? LastName.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Email != null ? Email.GetHashCode() : 0);
                 return hashCode;
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{FirstName} {LastName}";
         }
     }
 }

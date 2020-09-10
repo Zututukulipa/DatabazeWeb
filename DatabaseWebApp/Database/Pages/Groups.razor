@@ -1,75 +1,184 @@
 ﻿@page "/Groups"
-@using Database.Data
+@using Database.Services
 @using DatabaseAdapter.OracleLib.Models
-<select class="form-control" @bind="@SelectedGroupId">
-    @foreach(var group in testUser.Groups)
+@using Blazorise.Components
+@using DatabaseAdapter.OracleLib.Enums
+    
+<AddGroupPopUp AddPopup="_addPopup" WindowClosedCallback="ClosePopUp" GroupAddedCallback="GroupAdded"/>
+
+<select class="form-control" @bind=SelectedGroupId>
+    @foreach (var group in _userGroups)
     {
-        <option value = "@group.GroupId"> @group.Name </option>
+        <option value="@group.GroupId"> @group.Name </option>
     }
 </select>
-<div class="row">
-    <div class="col-sm-12">
-        <button id="btnAdd" class="btn btn-success btn-md" Style="width: 100px;" OnClick="AddGroup">Add</button>
-         <button id="btnDelete" class="btn btn-danger btn-md" Style="width: 100px;" OnClick="DeleteGroup">Delete</button>
-         <button id="btnUpdate" class="btn btn-primary btn-md" Style="width: 100px;" OnClick="UpdateGroup">Edit</button>
-     </div>
-</div>
-<hr>
-<table class="table table-hover">
-  <thead class="thead-dark">
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">First</th>
-      <th scope="col">Middle</th>
-      <th scope="col">Last</th>
-      <th scope="col"></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th scope="row">1</th>
-      <td>Mark</td>
-      <td>O</td>
-      <td>Komo</td>
-<td>
-                <button class="btn btn-primary">Edit</button>
-                <button class="btn btn-danger">Delete</button>
-            </td>
-    </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>T</td>
-      <td>Fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td colspan="2">Larry</td>
-      <td>Bird</td>
-    </tr>
-  </tbody>
-</table>
+@if (!_addPopup && UserService.ActiveUser.Role != Roles.Student)
+{
+    <div class="row">
+        <div class="col-sm-12">
+            <button id="btnAdd" class="btn btn-success btn-md" Style="width: 100px;" @onclick="AddGroup">Add</button>
+            <button id="btnDelete" class="btn btn-danger btn-md" Style="width: 100px;" @onclick="DeleteGroup">Delete</button>
+        </div>
+    </div>
+}
+    <hr>
+@if (SelectedGroupId > 0)
+{
+    <h2>@_selectedGroup.Name</h2>
+    <h3>@_selectedGroupTeacher.FirstName @_selectedGroupTeacher.LastName [@_selectedGroupTeacher.Email]</h3>
+    if (_addStudentTrigger)
+    {
+        <h3>Add Student</h3>
+        <Autocomplete TData="Students"
+                      Filter="AutocompleteFilter.Contains"
+                      Data="@AllStudentsList"
+                      TextField="@((item) => item.FirstName + " " + item.LastName + " " + item.StudentId)"
+                      ValueField="@((item) => item)"
+                      SelectedValue="@_selectedStudent"
+                      SelectedValueChanged="@MySearchHandler"
+                      Placeholder="Search..."/>
+        <Buttons>
+            <Button Color="Color.Success" Clicked="@AddStudent">Add student</Button>
+            <Button Color="Color.Danger" Clicked="() => { _addStudentTrigger = false; }">Cancel</Button>
+        </Buttons>
+    }
+    <Alert @ref="addStudentError" Color="Color.Danger">
+        <CloseButton Clicked="() => { _addStudentError.Toggle();}"/>
+        <AlertMessage>Error while adding!</AlertMessage>
+        <AlertDescription>Maybe is student already present..</AlertDescription>
+    </Alert>
+
+    <DataGrid TItem="Students"
+              @ref="studentDataGridRef"
+              Data="@ActiveGroupStudentsList"
+              @bind-SelectedRow="@_selectedStudent"
+              TotalItems="_totalStudents"
+              ShowPager="true"
+              PageSize="10"
+              CurrentPage="1"
+              FilterMethod="DataGridFilterMethod.StartsWith"
+              Editable="true"
+              EditMode="DataGridEditMode.Form">
+
+        <DataGridCommandColumn TItem="Students">
+            <EditCommandTemplate></EditCommandTemplate>
+            <NewCommandTemplate>
+                @if (!_addStudentTrigger && UserService.ActiveUser.Role != Roles.Student)
+                {
+                    <Button Color="Color.Success" Clicked="() => { _addStudentTrigger = true; }">Add</Button>
+                }
+            </NewCommandTemplate>
+            <DeleteCommandTemplate>
+                @if (UserService.ActiveUser.Role != Roles.Student)
+                {
+                    <Button Color="Color.Danger" Clicked="() => { RemoveStudent(context.Item); }">Remove</Button>
+                }
+            </DeleteCommandTemplate>
+        </DataGridCommandColumn>
+
+        <DataGridNumericColumn TItem="Students" Field="@nameof(Students.StudentId)" Caption="#" Editable="false" Sortable="true" Filterable="true"/>
+        <DataGridColumn TItem="Students" Field="@nameof(Students.FirstName)" Caption="First Name" Editable="true"/>
+        <DataGridColumn TItem="Students" Field="@nameof(Students.MiddleName)" Caption="Middle Name" Editable="true"/>
+        <DataGridColumn TItem="Students" Field="@nameof(Students.LastName)" Caption="Last Name" Editable="true"/>
+        <DataGridNumericColumn TItem="Students" Field="@nameof(Students.Year)" Caption="Year" Editable="true" Sortable="true"/>
+
+    </DataGrid>
+}
+
+
 
 @code {
 
-    User testUser = DataGen.getDefaultUser(1)[0];
-    
-    
-    
-    int selectedGroupId;
+    [Inject]
+    UserService ActiveUserService { get; set; }
 
-    int SelectedGroupId
+    protected GroupTableContent TableContent { get; set; }
+
+    List<Group> _userGroups;
+    private bool _addPopup;
+    public List<Students> ActiveGroupStudentsList { get; set; }
+    public List<Students> AllStudentsList { get; set; }
+    private Students _selectedStudent;
+    private int _totalStudents;
+    private bool _addStudentTrigger;
+    private DataGrid<Students> _studentDataGridRef;
+    Alert _addStudentError;
+    private Group _selectedGroup;
+    private Teachers _selectedGroupTeacher;
+
+    protected override void OnInitialized()
     {
-        get => selectedGroupId;
+        base.OnInitialized();
+        _userGroups = ActiveUserService.UserController.GetGroupUsers(UserService.ActiveUser);
+        AllStudentsList = ActiveUserService.UserController.GetStudents();
+    }
+
+    private int _selectedGroupId;
+
+    private int SelectedGroupId
+    {
+        get => _selectedGroupId;
         set
         {
-            selectedGroupId = value;
-
+            if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value));
+            _selectedGroupId = value;
+            _selectedGroup = ActiveUserService.UserController.GetGroupById(_selectedGroupId);
+            _selectedGroupTeacher = ActiveUserService.UserController.GetTeacherByTeacherId(_selectedGroup.TeacherId);
+            ActiveGroupStudentsList = ActiveUserService.UserController.GetGroupUsers(_selectedGroupId);
         }
     }
-    
-    
+
+    private void AddGroup()
+    {
+        _addPopup = true;
+    }
+
+    private void GroupAdded(Group group)
+    {
+        _userGroups.Add(group);
+        StateHasChanged();
+    }
+
+    private void ClosePopUp(bool value)
+    {
+        _addPopup = value;
+    }
+
+    private void DeleteGroup()
+    {
+        _userGroups.Remove(_userGroups.Find(x => x.GroupId == SelectedGroupId));
+        ActiveUserService.UserController.RemoveGroup(SelectedGroupId);
+        SelectedGroupId = _userGroups[0].GroupId;
+        TableContent.Refresh();
+    }
+
+    void MySearchHandler(object newValue)
+    {
+        if (newValue is Students stud)
+            _selectedStudent = stud;
+    }
 
 
-    
+    private void AddStudent()
+    {
+        if (ActiveGroupStudentsList.Contains(_selectedStudent))
+            _addStudentError.Show();
+        else
+        {
+            ActiveUserService.UserController.AddStudentToGroup(_selectedStudent, SelectedGroupId);
+            ActiveGroupStudentsList.Add(_selectedStudent);
+            _selectedStudent = null;
+            _addStudentTrigger = false;
+        }
+
+        StateHasChanged();
+    }
+
+    private void RemoveStudent(Students student)
+    {
+        ActiveUserService.UserController.RemoveStudentFromGroup(student, _selectedGroupId);
+        ActiveGroupStudentsList.Remove(student);
+        StateHasChanged();
+    }
+
 }

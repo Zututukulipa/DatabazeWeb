@@ -8,75 +8,79 @@ namespace TestDatabaseAdapter
 {
     public class CommentTest
     {
-        private DatabaseAdapter.OracleLib.OracleDatabaseControls Controls { get; } = new OracleDatabaseControls("DATA SOURCE=localhost/XE;USER ID=schoold; password=heslo;");
+        private OracleDatabaseControls Controls { get; } = new OracleDatabaseControls("DATA SOURCE=localhost/XE;USER ID=schoold; password=heslo;");
 
         [Fact]
         public void CreateComment()
         {
-            Random rnd = new Random();
-            
-            Group group = Controls.GetGroupById(1);
-            List<GroupMessages> gMessages = Controls.GetGroupMessageByGroup(group);
-            List<Students> students = Controls.GetGroupUsers(group.GroupId);
-            
-            int gMessageId = rnd.Next(gMessages.Count);
-            Students contentOwner = students[rnd.Next(students.Count)];
-            Comments comment = new Comments()
+            var rnd = new Random();
+            for (var i = 0; i < 60; i++)
             {
-                ContentOwner = contentOwner,
-                Content = "Test added comment",
-                Created = DateTime.Now,
-                MessageId = gMessageId,
-                UserId = contentOwner.UserId
-            };
-            comment.CommentId = Controls.InsertComment(comment, gMessages[gMessageId].GmsgId);
-            Assert.True(comment.CommentId > -1);
+                var group = Controls.GetGroupById(rnd.Next(1,20));
+                var gMessages = Controls.GetGroupMessageByGroup(group);
+                var students = Controls.GetGroupUsers(group.GroupId);
+                if (gMessages.Count > 0 && students.Count > 0)
+                {
+                    var gMessageId = rnd.Next(1, gMessages.Count);
+                    var contentOwner = students[rnd.Next( students.Count)];
+                    var comment = new Comments
+                    {
+                        ContentOwner = contentOwner,
+                        Content = "Test added comment",
+                        Created = DateTime.Now,
+                        MessageId = gMessageId,
+                        UserId = contentOwner.UserId
+                    };
+                    comment.CommentId = Controls.InsertComment(comment, gMessages[gMessageId].GmsgId);
+                }
+            }
+           
 
         }
 
         [Fact]
         public void GetAll()
         {
-            List<Comments> comments = Controls.GetComments();
+            var comments = Controls.GetComments();
             Assert.NotEmpty(comments);
         }
 
         [Fact]
         public void GetById()
         {
-            int commentId = 2;
-            Comments comment = Controls.GetCommentById(commentId);
+            var commentId = 2;
+            var comment = Controls.GetCommentById(commentId);
             Assert.NotNull(comment);
         }
 
         [Fact]
         public void GetByMessage()
         {
-            int messageId = 24;
-            List<Comments> comments = Controls.GetCommentsByMessage(messageId);
+            var messageId = 24;
+            var comments = Controls.GetCommentsByMessage(messageId);
             Assert.NotEmpty(comments);
         }
 
         [Fact]
         public void GetByUser()
         {
-            User user = Controls.GetUserById(484);
-            List<Comments> comments = Controls.GetCommentsByUser(user);
+            var user = Controls.GetUserById(484);
+            var comments = Controls.GetCommentsByUser(user);
             Assert.NotEmpty(comments);
         }
 
         [Fact]
         public void Remove()
         {
-            Random rnd = new Random();
+            var rnd = new Random();
             
-            Group group = Controls.GetGroupById(1);
-            List<GroupMessages> gMessages = Controls.GetGroupMessageByGroup(group);
-            List<Students> students = Controls.GetGroupUsers(group.GroupId);
+            var group = Controls.GetGroupById(1);
+            var gMessages = Controls.GetGroupMessageByGroup(group);
+            var students = Controls.GetGroupUsers(group.GroupId);
             
-            int gMessageId = rnd.Next(gMessages.Count);
-            Students contentOwner = students[rnd.Next(students.Count)];
-            Comments comment = new Comments()
+            var gMessageId = rnd.Next(gMessages.Count);
+            var contentOwner = students[rnd.Next(students.Count)];
+            var comment = new Comments
             {
                 ContentOwner = contentOwner,
                 Content = "Test added comment",
@@ -88,7 +92,7 @@ namespace TestDatabaseAdapter
 
             Controls.RemoveCommentById(gMessageId);
 
-            Comments deletedCommentCheck = Controls.GetCommentById(gMessageId);
+            var deletedCommentCheck = Controls.GetCommentById(gMessageId);
             Assert.Null(deletedCommentCheck);
 
         }
@@ -96,16 +100,16 @@ namespace TestDatabaseAdapter
         [Fact]
         public void UpdateContent()
         {
-            Random rnd = new Random();
-            string messageCheck = "UpdatedComment Contents...";
+            var rnd = new Random();
+            var messageCheck = "UpdatedComment Contents...";
             
-            Group group = Controls.GetGroupById(1);
-            List<GroupMessages> gMessages = Controls.GetGroupMessageByGroup(group);
-            List<Students> students = Controls.GetGroupUsers(group.GroupId);
+            var group = Controls.GetGroupById(1);
+            var gMessages = Controls.GetGroupMessageByGroup(group);
+            var students = Controls.GetGroupUsers(group.GroupId);
             
-            int gMessageId = rnd.Next(gMessages.Count);
-            Students contentOwner = students[rnd.Next(students.Count)];
-            Comments comment = new Comments()
+            var gMessageId = rnd.Next(gMessages.Count);
+            var contentOwner = students[rnd.Next(students.Count)];
+            var comment = new Comments
             {
                 ContentOwner = contentOwner,
                 Content = "Test added comment",
@@ -117,22 +121,22 @@ namespace TestDatabaseAdapter
 
             Controls.UpdateCommentContent(comment, messageCheck);
 
-            Comments flag = Controls.GetCommentById(comment.CommentId);
+            var flag = Controls.GetCommentById(comment.CommentId);
             Assert.True(flag.Content == messageCheck);
         }
 
         [Fact]
         public void UpdateMessage()
         {
-            Random rnd = new Random();
+            var rnd = new Random();
             
-            Group group = Controls.GetGroupById(1);
-            List<GroupMessages> gMessages = Controls.GetGroupMessageByGroup(group);
-            List<Students> students = Controls.GetGroupUsers(group.GroupId);
+            var group = Controls.GetGroupById(1);
+            var gMessages = Controls.GetGroupMessageByGroup(group);
+            var students = Controls.GetGroupUsers(group.GroupId);
             
-            int gMessageId = rnd.Next(gMessages.Count);
-            Students contentOwner = students[rnd.Next(students.Count)];
-            Comments comment = new Comments()
+            var gMessageId = rnd.Next(gMessages.Count);
+            var contentOwner = students[rnd.Next(students.Count)];
+            var comment = new Comments
             {
                 ContentOwner = contentOwner,
                 Content = "Test added comment",
@@ -144,23 +148,23 @@ namespace TestDatabaseAdapter
 
             Controls.UpdateCommentPost(comment.CommentId, 1);
 
-            Comments flag = Controls.GetCommentById(comment.CommentId);
+            var flag = Controls.GetCommentById(comment.CommentId);
             Assert.True(flag.MessageId == 1);
         }
 
         [Fact]
         public void UpdateUser()
         {
-            Random rnd = new Random();
+            var rnd = new Random();
             
-            Group group = Controls.GetGroupById(1);
-            List<GroupMessages> gMessages = Controls.GetGroupMessageByGroup(group);
-            List<Students> students = Controls.GetGroupUsers(group.GroupId);
+            var group = Controls.GetGroupById(1);
+            var gMessages = Controls.GetGroupMessageByGroup(group);
+            var students = Controls.GetGroupUsers(group.GroupId);
             
-            int gMessageId = rnd.Next(gMessages.Count);
-            Students contentOwner = students[rnd.Next(students.Count)];
-            Students newContentOwner = students[rnd.Next(students.Count)];
-            Comments comment = new Comments()
+            var gMessageId = rnd.Next(gMessages.Count);
+            var contentOwner = students[rnd.Next(students.Count)];
+            var newContentOwner = students[rnd.Next(students.Count)];
+            var comment = new Comments
             {
                 ContentOwner = contentOwner,
                 Content = "Test added comment",
@@ -172,7 +176,7 @@ namespace TestDatabaseAdapter
 
             Controls.UpdateCommentOwner(comment.CommentId, newContentOwner.UserId);
 
-            Comments flag = Controls.GetCommentById(comment.CommentId);
+            var flag = Controls.GetCommentById(comment.CommentId);
             Assert.True(flag.ContentOwner.Equals(newContentOwner));
         }
         

@@ -1,12 +1,12 @@
-﻿@using Database.Pages
-@using Database.Services
+﻿@using Database.Services
 @using DatabaseAdapter.OracleLib.Models
+@inject ChatState ChatState
 <div class="col-sm-8 pre-scrollable" style="min-height: 870px">
     <div>
         <h4>Chat</h4>
-        @foreach (var message in messageThread)
+        @foreach (var message in _currentThread)
         {
-           if (message.FromUser.Equals(activeUserService.ActiveUser))
+            if (message.FromUser.Equals(UserService.ActiveUser))
             {
                 <div class="shadow-none p-3 mb-5 bg-white rounded">
                     <div class="text-muted h7 mb-3">You</div>
@@ -16,16 +16,16 @@
                     <div class="text-muted text-right h7 mb-3">@message.Created.ToString("MM/dd/yyyy h:mm tt")</div>
                 </div>
             }
-           else
-           {
-               <div class="shadow-none p-3 mb-5 bg-light rounded">
-                   <div class="text-muted h7 mb-3">@message.FromUser.ToString()</div>
-                   <div class="text">
-                          @message.Content
-                   </div>
-                   <div class="text-muted text-right h7 mb-3">@message.Created.ToString("MM/dd/yyyy h:mm tt")</div>
-               </div>
-           }
+            else
+            {
+                <div class="shadow-none p-3 mb-5 bg-light rounded">
+                    <div class="text-muted h7 mb-3">@message.FromUser.ToString()</div>
+                    <div class="text">
+                        @message.Content
+                    </div>
+                    <div class="text-muted text-right h7 mb-3">@message.Created.ToString("dd/MM/yyyy h:mm tt")</div>
+                </div>
+            }
         }
     </div>
 </div>
@@ -33,17 +33,32 @@
 @code
 {
 
-    [Inject]
-    UserService activeUserService { get; set; }
+    [Parameter]
+    public List<PrivateMessages> _messages { get; set; }
 
-    List<PrivateMessages> messageThread = new List<PrivateMessages>();
+    private List<PrivateMessages> _currentThread { get; set; }
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
-    //TODO call messages from first in row
+        _currentThread = _messages.FindAll(
+            x => ((x.FromUser.Equals(ChatState.SelectedUser) && x.ToUser.Equals(UserService.ActiveUser))
+                || (x.FromUser.Equals(UserService.ActiveUser) && x.ToUser.Equals(ChatState.SelectedUser))));
+        ChatState.OnChange += _switchedUser;
     }
 
+    protected virtual void Dispose()
+    {
+        ChatState.OnChange -= _switchedUser;
+    }
 
+    private void _switchedUser()
+    {
+        _currentThread = _messages.FindAll(x 
+            => ((x.FromUser.Equals(ChatState.SelectedUser) && x.ToUser.Equals(UserService.ActiveUser))
+            || (x.FromUser.Equals(UserService.ActiveUser) && x.ToUser.Equals(ChatState.SelectedUser))));
+    //forcing re-render
+        StateHasChanged();
+    }
 
 }

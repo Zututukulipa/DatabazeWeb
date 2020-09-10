@@ -12,4 +12,22 @@
     <ProjectReference Include="..\..\Databaze_API\Databaze_API.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Blazorise" Version="0.9.1.2" />
+    <PackageReference Include="Blazorise.Bootstrap" Version="0.9.1.2" />
+    <PackageReference Include="Blazorise.Charts" Version="0.9.1.2" />
+    <PackageReference Include="Blazorise.Components" Version="0.9.1.2" />
+    <PackageReference Include="Blazorise.DataGrid" Version="0.9.1.2" />
+    <PackageReference Include="Blazorise.Icons.FontAwesome" Version="0.9.1.2" />
+    <PackageReference Include="Blazorise.Sidebar" Version="0.9.1.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Radzen.Blazor" Version="2.11.13" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Shared\SearchBar.razor">
+      <Generator>MSBuild:RazorGenerateComponentDeclarationDesignTime</Generator>
+    </Content>
+  </ItemGroup>
+
 </Project>

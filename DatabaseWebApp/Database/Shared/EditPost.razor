@@ -1,0 +1,34 @@
+﻿@using Database.Services
+@using DatabaseAdapter.OracleLib.Models
+<EditForm Model="@Post" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator/>
+    <InputTextArea id="edit" placeholder="Edit post...." @bind-Value=Post.MessageContent style="width: 100%"/>
+    <button type="submit" class="btn-block btn-primary">
+        Edit Post
+    </button>
+</EditForm>
+
+@code
+{
+    [Parameter]
+    public WallPost Post { get; set; }
+    [Parameter]
+    public EventCallback<WallPost> EditPostChanged { get; set; }
+    [Inject]
+    UserService ActiveUserService { get; set; }
+
+    private async void HandleValidSubmit()
+    {
+        await EditPostSubmit(Post);
+    }
+    
+    private async Task EditPostSubmit(WallPost post)
+    {
+    // Notify parent component to
+    // Remove the Task from the collection
+        await EditPostChanged.InvokeAsync(post);
+    }
+    
+
+
+}

@@ -1,0 +1,35 @@
+﻿@using DatabaseAdapter.OracleLib.Models
+@using Database.Services
+@using Blazorise.Components
+@inject NavigationManager NavigationManager
+
+<Autocomplete Data="@Users"
+              TextField="@((item) => item.FirstName + " " + item.LastName + " " + item.UserId)"
+              ValueField="@((item) => item.UserId)"
+              SelectedValue="@selectedSearchValue"
+              SelectedValueChanged="@MySearchHandler"
+              Filter="AutocompleteFilter.Contains"
+              Placeholder="Search..."/>
+
+@code{
+
+    [Inject]
+    UserService ActiveUserService { get; set; }
+
+    List<User> Users { get; set; }
+
+    User selectedSearchValue { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Users = ActiveUserService.UserController.GetUsers();
+    }
+
+    void MySearchHandler(object newValue)
+    {
+        NavigationManager.NavigateTo($"/user/{newValue}", forceLoad:true);
+        StateHasChanged();
+    }
+
+}

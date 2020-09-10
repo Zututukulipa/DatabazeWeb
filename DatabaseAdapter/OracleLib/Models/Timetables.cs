@@ -7,15 +7,11 @@ namespace DatabaseAdapter.OracleLib.Models
 
         public int TimetableId { get; set; }
 
+        public Group Group { get; set; }
 
-        public int GroupId { get; set; }
-
-
-        public int ClassroomId { get; set; }
-
-
+        public Classrooms Classroom { get; set; }
+        
         public DateTime Begin { get; set; }
-
 
         public DateTime End { get; set; }
 

@@ -1,0 +1,71 @@
+CREATE OR REPLACE PACKAGE PKG_COURSE AS
+    SUBTYPE T_ID IS COURSES.COURSE_ID%TYPE;
+    SUBTYPE T_FULL_NAME IS COURSES.FULL_NAME%TYPE;
+    SUBTYPE T_SHORT_NAME IS COURSES.SHORT_NAME%TYPE;
+    SUBTYPE T_DESCRIPTION IS COURSES.DESCRIPTION%TYPE;
+
+    FUNCTION NEW(p_full_name T_FULL_NAME, p_short_name T_SHORT_NAME, p_description T_DESCRIPTION) RETURN T_ID;
+
+    FUNCTION GET_ALL RETURN SYS_REFCURSOR;
+
+    FUNCTION GET_BY_ID(p_course_id T_ID) RETURN SYS_REFCURSOR;
+
+    PROCEDURE REMOVE(p_course_id T_ID);
+
+    PROCEDURE UPDATE_FULL_NAME(p_course_id T_ID, p_full_name T_FULL_NAME);
+
+    PROCEDURE UPDATE_SHORT_NAME(p_course_id T_ID, p_short_name T_SHORT_NAME);
+
+    PROCEDURE UPDATE_DESCRIPTION(p_course_id T_ID, p_description T_DESCRIPTION);
+END;
+
+CREATE OR REPLACE PACKAGE BODY PKG_COURSE AS
+
+    FUNCTION NEW(p_full_name T_FULL_NAME, p_short_name T_SHORT_NAME, p_description T_DESCRIPTION) RETURN T_ID AS
+        v_id T_ID;
+    BEGIN
+        INSERT INTO COURSES(FULL_NAME, SHORT_NAME, DESCRIPTION)
+        VALUES (p_full_name, p_short_name, p_description)
+        RETURNING COURSE_ID INTO v_id;
+        COMMIT;
+        RETURN v_id;
+    END;
+
+    FUNCTION GET_ALL RETURN SYS_REFCURSOR AS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR SELECT * FROM VW_COURSES;
+        RETURN v_cursor;
+    END;
+
+    FUNCTION GET_BY_ID(p_course_id T_ID) RETURN SYS_REFCURSOR AS
+        v_cursor SYS_REFCURSOR;
+    BEGIN
+        OPEN v_cursor FOR SELECT * FROM VW_COURSES WHERE COURSE_ID = p_course_id;
+        RETURN v_cursor;
+    END;
+
+    PROCEDURE REMOVE(p_course_id T_ID) AS
+    BEGIN
+        DELETE FROM COURSES WHERE COURSE_ID = p_course_id;
+        COMMIT;
+    END;
+
+    PROCEDURE UPDATE_FULL_NAME(p_course_id T_ID, p_full_name T_FULL_NAME) AS
+    BEGIN
+        UPDATE COURSES SET FULL_NAME = p_full_name WHERE COURSE_ID = p_course_id;
+        COMMIT;
+    END;
+
+    PROCEDURE UPDATE_SHORT_NAME(p_course_id T_ID, p_short_name T_SHORT_NAME) AS
+    BEGIN
+        UPDATE COURSES SET SHORT_NAME = p_short_name WHERE COURSE_ID = p_course_id;
+        COMMIT;
+    END;
+
+    PROCEDURE UPDATE_DESCRIPTION(p_course_id T_ID, p_description T_DESCRIPTION) AS
+    BEGIN
+        UPDATE COURSES SET DESCRIPTION = p_description WHERE COURSE_ID = p_course_id;
+        COMMIT;
+    END;
+END;

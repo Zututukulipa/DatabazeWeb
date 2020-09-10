@@ -1,22 +1,19 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DatabaseAdapter.OracleLib.Models;
 
-namespace Database.Data
+namespace TestDatabaseAdapter
 {
     public class DataGen
     {
 
       
 
-        public static Group getDefaultGroup()
+        public static Group GetDefaultGroup()
         {
-            Random rnd = new Random();
-            Group group = new Group();
-            int id = rnd.Next(500);
+            var rnd = new Random();
+            var group = new Group();
+            var id = rnd.Next(500);
             group.Name = $"UCB{id}";
             group.MaxCapacity = 20;
             group.ActualCapacity = group.MaxCapacity - rnd.Next(20);
@@ -25,22 +22,22 @@ namespace Database.Data
             return group;
         }
 
-        public static List<User> getDefaultUser(int amount)
+        public static List<User> GetDefaultUser(int amount)
         {
         string[] maleNames = {"Jiří","0Adam0-=","Jan","Petr","Josef","Pavel","Martin","[];',./","Jaroslav","><","Tomáš","","Miroslav","Zdeněk","František","Václav","Michal","Milan","Karel","Jakub","Lukáš","David","Vladimír","\t\t\t\t\t\t\t\t\t\t\\t\t\t\t\t\t\t\t\t\t\n\n\n\n\n\n\neof","Ladislav" };
         string[] maleSurnames = {
             "Novák", "Svoboda","DROP TABLE FILES;", "Novotný", "Dvořák", "Černý", "Procházka","`~<>?>}:|{}", "Kučera","\r","\\", "Veselý", "Horák", "Němec",
             "Pokorný", "Marek", "Pospíšil", "Hájek", "Jelínek", "Král","echo error >> ./err.txt" ,"Růžička", "Beneš", "Fiala", "Sedláček"
         };
-        Random rnd = new Random();
+        var rnd = new Random();
         
-            List<User> ret = new List<User>();
-            for (int i = 30; i < amount+30; i++)
+            var ret = new List<User>();
+            for (var i = 30; i < amount+30; i++)
             {
                 var usr = new User(i,$"st{i}",maleNames[rnd.Next(20)],maleNames[rnd.Next(20)],maleSurnames[rnd.Next(20)],$"st{i}@upce.cz", "generic bio");
-                for (int j = 0; j < 3; j++)
+                for (var j = 0; j < 3; j++)
                 {
-                    usr.Groups.Add(getDefaultGroup());
+                    usr.Groups.Add(GetDefaultGroup());
                 }
                 ret.Add(usr);
             }

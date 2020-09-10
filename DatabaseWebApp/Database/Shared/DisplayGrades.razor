@@ -1,0 +1,47 @@
+@using DatabaseAdapter.OracleLib.Models
+@using Database.Services
+@using Databaze_API.Controllers
+
+<Table>
+        <TableHeader>
+            <TableRow>
+                <TableHeaderCell>Class</TableHeaderCell>
+                <TableHeaderCell>Grade</TableHeaderCell>
+            </TableRow>
+        </TableHeader>
+    <TableBody>
+        @foreach(var grade in Grades)
+        {
+            var course = ActiveUserService.UserController.GetCourse(grade.Key);
+        <TableRow>
+            <TableRowCell>@course.FullName [@course.ShortName]</TableRowCell>
+            @foreach (var entry in grade.Value)
+            {
+                <TableRowCell>@entry.Value</TableRowCell>
+            }
+        </TableRow>
+    }
+    </TableBody>
+</Table>
+
+@code {
+    
+    [Parameter]
+    public int GroupId { get; set; } = 0;
+    
+    Dictionary<int, List<Grades>> Grades { get; set; }
+    
+    [Inject]
+    UserService ActiveUserService { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (GroupId == 0)
+            Grades = ActiveUserService.UserController.GetGrades(UserService.ActiveUser);
+        
+        Grades = new Dictionary<int, List<Grades>>();
+        Grades.Add(3, new List<Grades>(){new Grades(){CourseId = 3, Created = DateTime.Now, Description = "uwu", Value = 1, GradeId = 1, StudentId = 53, TeacherId = 1}});
+    }
+
+}

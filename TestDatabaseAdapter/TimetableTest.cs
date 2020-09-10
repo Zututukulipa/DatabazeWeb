@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DatabaseAdapter.OracleLib;
 using DatabaseAdapter.OracleLib.Models;
 using Xunit;
@@ -13,10 +14,30 @@ namespace TestDatabaseAdapter
         [Fact]
         public void Create()
         {
-            Timetables timetable = new Timetables()
-                {Begin = DateTime.Parse("13:00"), End = DateTime.Parse("15:00"), ClassroomId = 1, GroupId = 1};
-            timetable.TimetableId = Controls.InsertTimetable(timetable);
-            Assert.True(timetable.TimetableId > 0);
+            var rnd = new Random();
+            var groups = Controls.GetGroupAll();
+            foreach (var group in groups)
+            {
+                for (var i = 0; i < 6; i++)
+                {
+                    var dat = RandomDay();
+                    var timetable = new Timetables
+                    {
+                        Begin = dat, End = dat.AddHours(rnd.Next(8,20)),
+                        Classroom = new Classrooms{ClassroomId = rnd.Next(1, 40)}, Group = new Group(){GroupId = group.GroupId}
+                    };
+                    timetable.TimetableId = Controls.InsertTimetable(timetable);
+                }
+            }
+        }
+
+        DateTime RandomDay()
+        {
+            var gen = new Random();
+
+            var start = new DateTime(2020, 1, 1);
+            var range = 6;
+            return start.AddDays(gen.Next(range));
         }
     }
 }

@@ -1,0 +1,165 @@
+@using Database.Services
+@using DatabaseAdapter.OracleLib.Models
+@if (AddPopup)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Add Group</h3>
+                    <!-- Button to close the popup -->
+                    <button type="button" class="close"
+                            @onclick="() => WindowClosed()">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <EditForm Model="@AddedGroup" OnValidSubmit="@HandleValidSubmit">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator/>
+                        <div class="form-group list-group">
+                            <InputText id="name" @bind-Value="AddedGroup.Name" placeholder="Group Name" class="input-group-text"/>
+                        </div>
+                        <div class="form-group list-group">
+                            Maximal Capacity:<InputNumber id="mcap" class="input-group-lg" @bind-Value="AddedGroup.MaxCapacity"/>
+                        </div>
+                        <div class="form-group list-group">
+                            <InputSelect @bind-Value="Id" class="custom-select">
+                                @foreach (var professor in Professors)
+                                {   
+                                    <option value="@professor.TeacherId">@professor.FirstName @professor.MiddleName @professor.LastName [@professor.TeacherId]</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                    <div class="modal-content">
+                        @if (StudentCount < AddedGroup.MaxCapacity)
+                        {
+                            <button type="button" class="close"
+                                    @onclick="() => EditStudentCount(1)">
+                                <span aria-hidden="true">+</span>
+                            </button>
+                        }
+                        @if (StudentCount > 0)
+                        {
+                            for (var i = 0; i < StudentCount; i++)
+                            {
+                                <select type="text" placeholder="First Name" class="custom-select" @onchange="StudentSet">
+                                    <option value="" disabled selected hidden>Select Student</option>
+                                    @foreach (var student in StudentList)
+                                    {
+                                        <option value="@student.StudentId">@student.FirstName @student.MiddleName @student.LastName [@student.StudentId]</option>
+                                    }
+                                </select>
+                            }
+                        }
+                        @if (StudentCount > 0)
+                        {
+                            <button type="button" class="close"
+                                    @onclick="() => EditStudentCount(-1)">
+                                <span aria-hidden="true">-</span>
+                            </button>
+                        }
+                        <div class="modal-footer">
+                            @if (StudentValidityCheck)
+                            {
+                                <button type="submit" class="btn-primary">Submit</button>
+                            }
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code{
+
+    [Parameter]
+    public bool AddPopup { get; set; }
+
+    [Inject]
+    UserService ActiveUserService { get; set; }
+
+    public List<Teachers> Professors { get; set; }
+    public List<Students> StudentList { get; set; }
+    public List<Students> AddedStudents { get; set; }
+    public List<Classrooms> Classrooms { get; set; }
+    public string Id { get; set; }
+    public int StudentCount { get; set; }
+    public bool StudentValidityCheck { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> WindowClosedCallback { get; set; }
+
+    [Parameter]
+    public EventCallback<Group> GroupAddedCallback { get; set; }
+
+    public Group AddedGroup { get; private set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Professors = ActiveUserService.UserController.GetProfessors();
+        StudentList = ActiveUserService.UserController.GetStudents();
+        Classrooms = ActiveUserService.UserController.GetClassrooms();
+        Id = Professors[0].UserId.ToString();
+        AddedStudents = new List<Students>();
+        AddedGroup = new Group {Name = string.Empty};
+        AddedGroup.CapacityChanged += StudentListStateChanged;
+    }
+
+    private void StudentListStateChanged(object? sender, int e)
+    {
+        if (e < StudentCount)
+        {
+            for (int i = 0; i < AddedStudents.Count - e; i++)
+            {
+                AddedStudents.RemoveAt(e);
+            }
+        }
+        StudentCount = e;
+    }
+
+    private async void HandleValidSubmit()
+    {
+        int.TryParse(Id, out var teachersParsedId);
+        AddedGroup.TeacherId = teachersParsedId;
+        AddedGroup.ActualCapacity = AddedStudents.Count;
+        AddedGroup.GroupId = ActiveUserService.UserController.AddGroup(AddedGroup);
+        ActiveUserService.UserController.AddStudentsToGroup(AddedStudents, AddedGroup);
+        await GroupAddedCallback.InvokeAsync(AddedGroup);
+        await WindowClosed();
+    }
+
+
+    private async Task WindowClosed(bool changedState = false)
+    {
+        AddedStudents = null;
+        StudentCount = 0;
+        StudentValidityCheck = false;
+        await WindowClosedCallback.InvokeAsync(changedState);
+    }
+
+    private void EditStudentCount(int amount)
+    {
+        StudentCount += amount;
+        if (amount < 0)
+        {
+            StudentList.RemoveAt(StudentList.Count - 1);
+        }
+    }
+
+    private void StudentSet(ChangeEventArgs e)
+    {
+        int.TryParse(e.Value.ToString(), out var studentId);
+        var stud = StudentList.Find(x => x.StudentId == studentId);
+        AddedStudents.Add(stud);
+        var res = (from x in AddedStudents select x).Distinct().Count();
+        if (res == StudentCount && res <= AddedGroup.MaxCapacity && AddedGroup.Name != string.Empty)
+        {
+            StudentValidityCheck = true;
+            StateHasChanged();
+        }
+    }
+
+}

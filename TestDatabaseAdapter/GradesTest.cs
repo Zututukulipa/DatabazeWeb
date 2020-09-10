@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
 using DatabaseAdapter.OracleLib;
 using DatabaseAdapter.OracleLib.Models;
 using Xunit;
@@ -15,13 +14,13 @@ namespace TestDatabaseAdapter
         [Fact]
         public void New()
         {
-            List<Students> students = Controls.GetStudentAll();
-            List<Teachers> teachers = Controls.GetTeacherAll();
-            List<Courses> courses = Controls.GetCourseAll();
-            Random rnd = new Random();
-            for (int i = 0; i < 1000; i++)
+            var students = Controls.GetStudentAll();
+            var teachers = Controls.GetTeacherAll();
+            var courses = Controls.GetCourseAll();
+            var rnd = new Random();
+            for (var i = 0; i < 1000; i++)
             {
-                Grades grade = new Grades()
+                var grade = new Grades
                 {
                     Created = DateTime.Today, Description = "Nice test, especially considering its testing method",
                     Value = rnd.Next(1, 5),
@@ -32,65 +31,65 @@ namespace TestDatabaseAdapter
                 grade.GradeId = Controls.InsertGrade(grade);
             }
 
-            List<Grades> grades = Controls.GetGrades();
+            var grades = Controls.GetGrades();
             Assert.NotEmpty(grades);
         }
 
         [Fact]
         public void GetAll()
         {
-            List<Grades> grades = Controls.GetGrades();
+            var grades = Controls.GetGrades();
             Assert.NotEmpty(grades);
         }
 
         [Fact]
         public void GetByCourse()
         {
-            Courses course = Controls.GetCourseById(38);
-            List<Grades> grades = Controls.GetGrades(course);
+            var course = Controls.GetCourseById(38);
+            var grades = Controls.GetGrades(course);
             Assert.NotEmpty(grades);
         }
 
         [Fact]
         public void GetById()
         {
-            Grades grade = Controls.GetGrade(2);
+            var grade = Controls.GetGrade(2);
             Assert.NotNull(grade);
         }
 
         [Fact]
         public void GetByStudent()
         {
-            Students stud = Controls.GetStudentById(145);
-            List<Grades> grades = Controls.GetGrades(stud);
+            var stud = Controls.GetStudentById(145);
+            var grades = Controls.GetGrades(stud);
             Assert.NotEmpty(grades);
         }
 
         [Fact]
         public void GetByTeacher()
         {
-            Teachers teacher = Controls.GetTeacherById(5);
-            List<Grades> grades = Controls.GetGrades(teacher);
+            var teacher = Controls.GetTeacherById(5);
+            var grades = Controls.GetGrades(teacher);
             Assert.NotEmpty(grades);
         }
 
         [Fact]
         public void Remove()
         {
-            int gradeId = 500;
+            var gradeId = 500;
             Controls.RemoveGrade(gradeId);
-            Grades grade = Controls.GetGrade(gradeId);
+            var grade = Controls.GetGrade(gradeId);
             Assert.Null(grade);
         }
 
         [Fact]
         public void UpdateCourse()
         {
-            int courseId = 140;
-            int gradeId = 89;
-            Grades grade = Controls.GetGrade(gradeId);
+            var courseId = 140;
+            var gradeId = 89;
+            var grade = Controls.GetGrade(gradeId);
             Controls.UpdateGradeCourse(grade, courseId);
-            Grades updatedGrade = Controls.GetGrade(gradeId);
+            var updatedGrade = Controls.GetGrade(gradeId);
             Assert.True(updatedGrade.CourseId == courseId);
             
         }
@@ -98,45 +97,45 @@ namespace TestDatabaseAdapter
         [Fact]
         public void UpdateDescription()
         {
-        string description = "new updated description";
-        int gradeId = 89;
-        Grades grade = Controls.GetGrade(gradeId);
+        var description = "new updated description";
+        var gradeId = 89;
+        var grade = Controls.GetGrade(gradeId);
         Controls.UpdateGradeDescription(grade, description);
-        Grades updatedGrade = Controls.GetGrade(gradeId);
+        var updatedGrade = Controls.GetGrade(gradeId);
         Assert.True(updatedGrade.Description == description);
         }
 
         [Fact]
         public void UpdateStudent()
         {
-            int studentId = 81;
-            int gradeId = 89;
-            Grades grade = Controls.GetGrade(gradeId);
+            var studentId = 81;
+            var gradeId = 89;
+            var grade = Controls.GetGrade(gradeId);
             Controls.UpdateGradeStudent(grade, studentId);
-            Grades updatedGrade = Controls.GetGrade(gradeId);
+            var updatedGrade = Controls.GetGrade(gradeId);
             Assert.True(updatedGrade.StudentId == studentId);   
         }
 
         [Fact]
         public void UpdateTeacher()
         {
-            int teacherId = 5;
-            int gradeId = 89;
-            Grades grade = Controls.GetGrade(gradeId);
+            var teacherId = 5;
+            var gradeId = 89;
+            var grade = Controls.GetGrade(gradeId);
             Controls.UpdateGradeTeacher(grade, teacherId);
-            Grades updatedGrade = Controls.GetGrade(gradeId);
+            var updatedGrade = Controls.GetGrade(gradeId);
             Assert.True(updatedGrade.TeacherId == teacherId);   
         }
         
         [Fact]
         public void UpdateValue()
         {
-            Random rnd = new Random();
-            int value = rnd.Next(1,5);
-            int gradeId = 89;
-            Grades grade = Controls.GetGrade(gradeId);
+            var rnd = new Random();
+            var value = rnd.Next(1,5);
+            var gradeId = 89;
+            var grade = Controls.GetGrade(gradeId);
             Controls.UpdateGradeValue(grade, value);
-            Grades updatedGrade = Controls.GetGrade(gradeId);
+            var updatedGrade = Controls.GetGrade(gradeId);
             Assert.True(updatedGrade.Value == value);   
         }
     }

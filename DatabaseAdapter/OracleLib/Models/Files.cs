@@ -19,8 +19,6 @@ namespace DatabaseAdapter.OracleLib.Models
 
         public byte[] FileData { get; set; }
 
-
         public DateTime Created { get; set; }
-
     }
 }

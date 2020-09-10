@@ -1,21 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using DatabaseAdapter.OracleLib;
 using Databaze_API.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Oracle.ManagedDataAccess.Client;
 
 namespace Databaze_API
 {
@@ -33,7 +23,7 @@ namespace Databaze_API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            OracleDatabaseControls cntrls = new OracleDatabaseControls(Configuration.GetConnectionString("OracleDB"));
+            var cntrls = new OracleDatabaseControls(Configuration.GetConnectionString("OracleDB"));
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<UserController>>().Value);
 
             

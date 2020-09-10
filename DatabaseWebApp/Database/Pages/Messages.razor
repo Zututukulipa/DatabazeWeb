@@ -1,40 +1,62 @@
 ﻿@page "/Messages"
-@using Database.Data
+@using Database.Services
 @using DatabaseAdapter.OracleLib.Models
+@inject ChatState ChatState
 
 <div class="row">
-   <MessagesChatWindow/>
-    <MessagesContactSidebar/>
+    <MessagesChatWindow _messages="PrivateMessages"/>
+    <MessagesContactSidebar Conversations="UserMessages"/>
 </div>
 <div class="row">
-<div class="col-sm-8 pre-scrollable">
-    <div class="card">
-        <EditForm Model="@o" OnValidSubmit="@HandleValidSubmit">
-            <DataAnnotationsValidator/>
-            <ValidationSummary/>
+    <div class="col-sm-8 pre-scrollable">
+        <div class="card">
+            <EditForm Model="@PrivateMessages" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator/>
 
-            <InputText id="name" @bind-Value="o" style="width: 970px;min-width: 200px;"/>
+                <InputText id="name" @bind-Value="_replyText" style="width: 970px;min-width: 200px;"/>
 
-            <button type="submit" class="btn btn-primary">Send</button>
-        </EditForm>
+                <button type="submit" class="btn btn-primary">Send</button>
+            </EditForm>
+        </div>
     </div>
-</div>
 </div>
 
 @code{
 
-    List<PrivateMessages> _messages { get; set; }
-    string o = "";
+    private List<PrivateMessages> PrivateMessages { get; set; }
+    private ILookup<User, PrivateMessages> UserMessages { get; set; }
+
+    [Inject]
+    UserService ActiveUserService { get; set; }
+
+    string _replyText = "";
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _messages = DataGen.getDefaultMessages(10);
+
+        PrivateMessages = ActiveUserService.UserController.GetUserPrivateMessages(UserService.ActiveUser);
+        try
+        {
+            UserMessages = PrivateMessages.OrderBy(x => x.Created).ToLookup(x => x.FromUser);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        ChatState.SelectedUser = UserService.ActiveUser;
     }
+
 
     void HandleValidSubmit()
     {
-        Console.WriteLine(o);
-    }
+        var newMessage = new PrivateMessages(UserService.ActiveUser, ChatState.SelectedUser, _replyText);
+        PrivateMessages.Add(newMessage);
+        _replyText = string.Empty;
+        ChatState.NotifyStateChanged();
+       ActiveUserService.UserController.SendPrivateMessage(newMessage);
+    }    
+    
 
 }
