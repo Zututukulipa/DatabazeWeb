@@ -7,12 +7,12 @@
         <tbody>
         @foreach (var userMessages in Conversations)
         {
-            PrivateMessages lastMessage;
+            IPrivateMessages lastMessage;
             try
             {
-                lastMessage = Neco.Last(x => (x.FromUser.Equals(userMessages.Key) && x.ToUser.Equals(UserService.ActiveUser)) || (x.FromUser.Equals(UserService.ActiveUser) && x.ToUser.Equals(userMessages.Key)));
+                lastMessage = userMessages.Last(x => (x.FromUser.Equals(userMessages.Key) && x.ToUser.Equals(UserService.ActiveUser)) || (x.FromUser.Equals(UserService.ActiveUser) && x.ToUser.Equals(userMessages.Key)));
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 lastMessage = new PrivateMessages{Content = "", FromUser = userMessages.Key, ToUser = UserService.ActiveUser, Created = DateTime.Now};
             }
@@ -48,23 +48,12 @@
 @code
 {
     [Parameter]
-    public ILookup<User, PrivateMessages> Conversations { get; set; }
-
-    public PrivateMessages[] Neco { get; set; }
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        Neco = Conversations.SelectMany(_ => _).ToArray();
-
-    }
+    public ILookup<User, IPrivateMessages> Conversations { get; set; }
 
     void ChatSelection(User newlySelectedUser)
     {
         ChatState.SelectedUser = newlySelectedUser;
         ChatState.NotifyStateChanged();
-
-        
     }
 }
 

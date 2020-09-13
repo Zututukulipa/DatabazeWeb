@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Database.Entities
 {
-    public class LoginInfoFields
+    internal class LoginInfoFields
     {
         [Required]
         public string Login { get; set; }

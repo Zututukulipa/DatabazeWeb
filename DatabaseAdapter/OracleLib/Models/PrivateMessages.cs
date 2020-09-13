@@ -2,7 +2,7 @@ using System;
 
 namespace DatabaseAdapter.OracleLib.Models
 {
-    public class PrivateMessages
+    public class PrivateMessages : IPrivateMessages
     {
 
         public int PmsgId { get; set; }

@@ -3,5 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/DatabaseAdapter/SQLCripts/IDAS2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/DatabaseAdapter/SQLScripts/IDAS2" vcs="Git" />
   </component>
 </project>

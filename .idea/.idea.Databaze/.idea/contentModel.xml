@@ -29,6 +29,7 @@
             <e p="Grades.cs" t="Include" />
             <e p="Group.cs" t="Include" />
             <e p="GroupMessages.cs" t="Include" />
+            <e p="IPrivateMessages.cs" t="Include" />
             <e p="PrivateMessages.cs" t="Include" />
             <e p="StudentYear.cs" t="Include" />
             <e p="Students.cs" t="Include" />
@@ -76,14 +77,11 @@
       </e>
       <e p="DatabaseWebApp/Database" t="IncludeRecursive">
         <e p="App.razor" t="Include" />
-        <e p="Data" t="Include">
-          <e p="DataGen.cs" t="Include" />
-        </e>
+        <e p="Data" t="Include" />
         <e p="Database.csproj" t="IncludeRecursive" />
         <e p="Entities" t="Include">
           <e p="LoginInfoFields.cs" t="Include" />
         </e>
-        <e p="NewFolder" t="Include" />
         <e p="Pages" t="Include">
           <e p="Error.razor" t="Include" />
           <e p="Grades.razor" t="Include" />

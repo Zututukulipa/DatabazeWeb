@@ -1,7 +1,6 @@
 @using DatabaseAdapter.OracleLib.Models
 @using Databaze_API.Controllers
 @using Database.Services
-@inject UserController ActiveUserController;
 <Table Bordered="true">
     <TableHeader>
         <TableRow>
@@ -21,12 +20,13 @@
                 </TableRowCell>
                 @for (int i = HoraryStart; i <= HoraryEnd; i++)
                 {
+                    var t = SchedulerData.Where(scheduledClass =>
+                        scheduledClass.Begin.Hour - i <= 0 &&
+                        scheduledClass.End.Hour - i > 0 &&
+                        scheduledClass.Begin.DayOfWeek == day).ToList()
+                    ;
                     <TableRowCell>
-                        @foreach (var scheduledClass in 
-                            SchedulerData.Where(scheduledClass =>
-                                scheduledClass.Begin.Hour - i <= 0 &&
-                                scheduledClass.End.Hour - i > 0 &&
-                                scheduledClass.Begin.DayOfWeek == day))
+                        @foreach (var scheduledClass in t)
                         {
                             <TableRow>
                                 <TableRowCell Color="GetRandomBg(scheduledClass.Classroom.ClassroomId)">
@@ -50,6 +50,10 @@
     [Parameter]
     public int HoraryEnd { get; set; } = 20;
 
+    [Inject]
+    UserService ActiveUserService { get; set; }
+
+
     public List<Timetables> SchedulerData { get; set; }
 
     private List<DayOfWeek> days;
@@ -60,7 +64,7 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        SchedulerData = ActiveUserController.GetUserSchedule(UserService.ActiveUser);
+        SchedulerData = ActiveUserService.UserController.GetUserSchedule(UserService.ActiveUser);
         Random r = new Random();
         for (int i = 0; i < 10; i++)
         {

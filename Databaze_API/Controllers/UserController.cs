@@ -24,7 +24,7 @@ namespace Databaze_API.Controllers
         }
 
 
-        public List<PrivateMessages> GetUserPrivateMessages(User user)
+        public List<IPrivateMessages> GetUserPrivateMessages(User user)
         {
             return _controls.GetMessageByUser(user);
         }
@@ -198,9 +198,10 @@ namespace Databaze_API.Controllers
             var groups = _controls.GetUserGroups(activeUser);
             foreach (var group in groups)
             {
-                timetables.Add(_controls.GetTimetablesByGroup(group));
+                var groupTimetable = _controls.GetTimetablesByGroup(group);
+                if(groupTimetable != null)
+                  timetables.Add(groupTimetable);
             }
-
             return timetables;
         }
     }

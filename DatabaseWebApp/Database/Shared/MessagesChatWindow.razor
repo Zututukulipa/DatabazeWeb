@@ -34,9 +34,9 @@
 {
 
     [Parameter]
-    public List<PrivateMessages> _messages { get; set; }
+    public List<IPrivateMessages> _messages { get; set; }
 
-    private List<PrivateMessages> _currentThread { get; set; }
+    private List<IPrivateMessages> _currentThread { get; set; }
 
     protected override void OnInitialized()
     {

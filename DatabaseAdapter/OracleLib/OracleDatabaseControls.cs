@@ -872,11 +872,11 @@ namespace DatabaseAdapter.OracleLib
             return pMessage;
         }
 
-        public List<PrivateMessages> GetMessageByUser(User us)
+        public List<IPrivateMessages> GetMessageByUser(User us)
         {
             //FUNCTION GET_BY_USER(p_user PKG_USER.T_ID) RETURN SYS_REFCURSOR AS
             const string commandText = "PKG_PMSG.GET_BY_USER";
-            var pMessages = new List<PrivateMessages>();
+            var pMessages = new List<IPrivateMessages>();
             using var connection = new OracleConnection(_connectionString);
             using var command = new OracleCommand(commandText, connection) {CommandType = CommandType.StoredProcedure};
 
@@ -2718,7 +2718,7 @@ namespace DatabaseAdapter.OracleLib
         public Timetables GetTimetablesByGroup(Group group)
         {
             //FUNCTION GET_BY_GROUP(p_group_id PKG_GROUP.T_ID) RETURN SYS_REFCURSOR;
-            const string commandText = "PKG_GROUP.GET_BY_GROUP";
+            const string commandText = "PKG_TIMETABLE.GET_BY_GROUP";
             Timetables timetables = null;
             using var connection = new OracleConnection(_connectionString);
             using var command = new OracleCommand(commandText, connection) {CommandType = CommandType.StoredProcedure};

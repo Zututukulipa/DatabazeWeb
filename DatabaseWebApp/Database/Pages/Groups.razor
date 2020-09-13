@@ -42,14 +42,14 @@
             <Button Color="Color.Danger" Clicked="() => { _addStudentTrigger = false; }">Cancel</Button>
         </Buttons>
     }
-    <Alert @ref="addStudentError" Color="Color.Danger">
+    <Alert @ref="_addStudentError" Color="Color.Danger">
         <CloseButton Clicked="() => { _addStudentError.Toggle();}"/>
         <AlertMessage>Error while adding!</AlertMessage>
         <AlertDescription>Maybe is student already present..</AlertDescription>
     </Alert>
 
     <DataGrid TItem="Students"
-              @ref="studentDataGridRef"
+              @ref="_studentDataGridRef"
               Data="@ActiveGroupStudentsList"
               @bind-SelectedRow="@_selectedStudent"
               TotalItems="_totalStudents"
@@ -92,12 +92,12 @@
     [Inject]
     UserService ActiveUserService { get; set; }
 
-    protected GroupTableContent TableContent { get; set; }
+    private GroupTableContent TableContent { get; set; }
 
     List<Group> _userGroups;
-    private bool _addPopup;
     public List<Students> ActiveGroupStudentsList { get; set; }
     public List<Students> AllStudentsList { get; set; }
+    private bool _addPopup;
     private Students _selectedStudent;
     private int _totalStudents;
     private bool _addStudentTrigger;

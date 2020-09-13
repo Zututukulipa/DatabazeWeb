@@ -23,8 +23,8 @@
 
 @code{
 
-    private List<PrivateMessages> PrivateMessages { get; set; }
-    private ILookup<User, PrivateMessages> UserMessages { get; set; }
+    private List<IPrivateMessages> PrivateMessages { get; set; }
+    private ILookup<User, IPrivateMessages> UserMessages { get; set; }
 
     [Inject]
     UserService ActiveUserService { get; set; }
